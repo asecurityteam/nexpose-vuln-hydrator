@@ -46,8 +46,16 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
+  /healthcheck:
+    get:
+      description: "Liveness check."
+      responses:
+        "200":
+          description: "Success."
+      x-transportd:
+        backend: app
   /hydrate:
-    postt:
+    post:
       description: Hydrate an Asset with vulnerability details.
       requestBody:
         content:

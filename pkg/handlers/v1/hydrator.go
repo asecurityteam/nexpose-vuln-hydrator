@@ -5,12 +5,14 @@ import (
 	"time"
 
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
+	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/logs"
 )
 
 // HydrationHandler consumes AssetEvents, hydrates them with vulnerability details,
 // and returns an AssetVulnerabilitiesEvent or error
 type HydrationHandler struct {
 	Hydrator domain.Hydrator
+	LogFn    domain.LogFn
 }
 
 // AssetEvent contains JSON annotations for scanned Asset events
@@ -46,9 +48,11 @@ type AssessmentResult struct {
 
 // Handle accepts AssetEvents and returns a hydrated asset containing vulnerability information
 func (h *HydrationHandler) Handle(ctx context.Context, evt AssetEvent) (AssetVulnerabilitiesEvent, error) {
+	logger := h.LogFn(ctx)
 	asset := domain.Asset(evt)
 	assetWithVulnerabilityDetails, err := h.Hydrator.HydrateVulnerabilities(asset)
 	if err != nil {
+		logger.Error(logs.HydrationError{Reason: err.Error()})
 		return AssetVulnerabilitiesEvent{}, err
 	}
 	return domainAssetVulnerabilityDetailsToEvent(assetWithVulnerabilityDetails), nil

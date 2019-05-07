@@ -17,7 +17,7 @@ func TestHandleSuccess(t *testing.T) {
 	mockHydrator := NewMockHydrator(ctrl)
 	mockHydrator.EXPECT().HydrateVulnerabilities(gomock.Any()).Return(domain.AssetVulnerabilityDetails{}, nil)
 
-	handler := &HydrationHandler{mockHydrator}
+	handler := &HydrationHandler{Hydrator: mockHydrator, LogFn: testLogFn}
 	_, err := handler.Handle(context.Background(), AssetEvent{})
 
 	assert.Nil(t, err)
@@ -30,7 +30,7 @@ func TestHandleError(t *testing.T) {
 	mockHydrator := NewMockHydrator(ctrl)
 	mockHydrator.EXPECT().HydrateVulnerabilities(gomock.Any()).Return(domain.AssetVulnerabilityDetails{}, fmt.Errorf("error"))
 
-	handler := &HydrationHandler{mockHydrator}
+	handler := &HydrationHandler{Hydrator: mockHydrator, LogFn: testLogFn}
 	_, err := handler.Handle(context.Background(), AssetEvent{})
 
 	assert.NotNil(t, err)

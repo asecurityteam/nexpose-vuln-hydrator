@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	v1 "github.com/asecurityteam/nexpose-vuln-hydrator/pkg/handlers/v1"
 	serverfull "github.com/asecurityteam/serverfull/pkg"
 	serverfulldomain "github.com/asecurityteam/serverfull/pkg/domain"
 	"github.com/asecurityteam/settings"
@@ -12,10 +13,9 @@ import (
 
 func main() {
 	ctx := context.Background()
-	var _ lambda.Handler = nil // Placeholder to keep lambda imported. Delete after adding to the map.
+	hydrationHandler := &v1.HydrationHandler{}
 	handlers := map[string]serverfulldomain.Handler{
-		// TODO: Register lambda functions here in the form of
-		// "name_or_arn": lambda.NewHandler(myHandler.Handle)
+		"hydrate": lambda.NewHandler(hydrationHandler.Handle),
 	}
 
 	source, err := settings.NewEnvSource(os.Environ())

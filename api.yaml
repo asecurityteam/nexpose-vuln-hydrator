@@ -54,23 +54,21 @@ paths:
           description: "Success."
       x-transportd:
         backend: app
-  /{name}:
-    get:
-      description: An API Call.
-      parameters:
-        - name: "name"
-          in: "path"
-          description: "Name of person to greet."
-          required: true
-          schema:
-            type: "string"
+  /hydrate:
+    post:
+      description: Hydrate an Asset with vulnerability details.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
       responses:
         "200":
           description: "Success"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Greeting'
+                $ref: '#/components/schemas/AssetWithVulnerabilities'
       x-transportd:
         backend: app
         enabled:
@@ -80,16 +78,136 @@ paths:
           - "responsevalidation"
           - "lambda"
         lambda:
-          arn: "name_or_arn"
+          arn: "hydrate"
           async: false
-          request: '{}'
+          request: '#! json .Request.Body !#'
           success: '{"status": 200, "bodyPassthrough": true}'
           error: '{"status": 500, "bodyPassthrough": true}'
 components:
   schemas:
-    Greeting:
+    Asset:
       type: object
+      required:
+        - id
+        - ip
+        - lastScanned
       properties:
-        greeting:
+        hostname:
           type: string
-          description: The personal greeting.
+          example: corporate-workstation-1102DC.acme.com
+          description: The primary host name (local or FQDN) of the asset.
+        id:
+          type: integer
+          format: int64
+          example: 282
+          description: The identifier of the asset.
+        ip:
+          type: string
+          example: 182.34.74.202
+          description: The primary IPv4 or IPv6 address of the asset.
+        lastScanned:
+          type: string
+          format: date-time
+          description: The last time the asset was scanned.
+    AssetWithVulnerabilities:
+      type: object
+      required:
+        - id
+        - ip
+        - lastScanned
+        - assetVulnerabilityDetails
+      properties:
+        hostname:
+          type: string
+          example: corporate-workstation-1102DC.acme.com
+          description: The primary host name (local or FQDN) of the asset.
+        id:
+          type: integer
+          format: int64
+          example: 282
+          description: The identifier of the asset.
+        ip:
+          type: string
+          example: 182.34.74.202
+          description: The primary IPv4 or IPv6 address of the asset.
+        lastScanned:
+          type: string
+          format: date-time
+          description: The last time the asset was scanned.
+        assetVulnerabilityDetails:
+          type: array
+          description: List of vulnerabilities found on the asset.
+          items:
+            $ref: '#/components/schemas/AssetVulnerabilityDetails'
+    AssetVulnerabilityDetails:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          example: ssh-openssh-x11uselocalhost-x11-forwarding-session-hijack
+          description: The identifier of the vulnerability.
+        results:
+          type: array
+          description: >-
+            The vulnerability check results for the finding. Multiple instances
+            may be present if one or more checks fired, or a check has multiple
+            independent results.
+          items:
+            $ref: '#/components/schemas/AssessmentResult'
+        cvssV2Score:
+          type: number
+          format: double
+          example: 4.4
+          description: 'The CVSS V2 score, which ranges from 0-10.'
+        cvssV2Severity:
+          type: string
+          example: Severe
+          description: >-
+            The severity of the vulnerability, one of: `"Moderate"`, `"Severe"`,
+            `"Critical"`.
+        description:
+          type: string
+          example: >-
+            <p>A remote code execution vulnerability exists in the way that the
+            scripting engine handles objects in memory in Microsoft Edge. ...</p>
+          description: The description of the vulnerability.
+        title:
+          type: string
+          example: >-
+            Microsoft CVE-2017-11804: Scripting Engine Memory Corruption
+            Vulnerability
+          description: The title (summary) of the vulnerability.
+        solutions:
+          type: array
+          items:
+            type: string
+          description: Solutions for remediation of the vulnerability.
+    AssessmentResult:
+      type: object
+      required:
+        - port
+        - protocol
+      properties:
+        port:
+          type: integer
+          format: int32
+          example: 22
+          description: The port of the service the result was discovered on.
+        protocol:
+          type: string
+          example: tcp
+          description: The protocol of the service the result was discovered on.
+          enum:
+            - ip
+            - icmp
+            - igmp
+            - ggp
+            - tcp
+            - pup
+            - udp
+            - idp
+            - esp
+            - nd
+            - raw

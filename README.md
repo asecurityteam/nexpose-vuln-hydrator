@@ -1,11 +1,11 @@
 <a id="markdown-Nexpose Vulnerability Hydrator" name="Nexpose Vulnerability Hydrator"></a>
-# Nexpose Vulnerability Hydrator - Nexpose Vulnerability Hydrator consumes Asset Scan events and hydrates the payload with vulnerability details.
+# Nexpose Vulnerability Hydrator
 
 <https://github.com/asecurityteam/nexpose-vuln-hydrator>
 
 <!-- TOC -->
 
-- [Nexpose Vulnerability Hydrator - Nexpose Vulnerability Hydrator consumes Asset Scan events and hydrates the payload with vulnerability details.](#Nexpose Vulnerability Hydrator)
+- [Nexpose Vulnerability Hydrator](#Nexpose Vulnerability Hydrator)
     - [Overview](#overview)
     - [Quick Start](#quick-start)
     - [Configuration](#configuration)
@@ -21,15 +21,7 @@
 <a id="markdown-overview" name="overview"></a>
 ## Overview
 
-<What does this project do?>
-<What does this project _not_ do?>
-<Why did we make this project?>
-<Links to other references or material.>
-
-<a id="markdown-quick-start" name="quick-start"></a>
-## Quick Start
-
-<Hello world style example.>
+Nexpose Vulnerability Hydrator consumes Asset Scan events and hydrates the payload with vulnerability details.
 
 <a id="markdown-configuration" name="configuration"></a>
 ## Configuration

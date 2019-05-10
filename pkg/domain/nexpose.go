@@ -21,11 +21,3 @@ type NexposeVulnerability struct {
 	Description    string
 	Title          string
 }
-
-// NexposeClient represents an interface used to interact with the Nexpose API
-type NexposeClient interface {
-	GetAssetVulnerabilities(int64) ([]NexposeAssetVulnerability, error)
-	GetVulnerabilityDetails(string) (*NexposeVulnerability, error)
-	GetVulnerabilitySolutions(string) ([]string, error)
-	GetVulnerabilitySolutionDetails(string) ([]string, error)
-}

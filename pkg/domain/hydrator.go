@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 // AssetVulnerabilityDetails is a struct containing the asset information with vulnerabilities
 type AssetVulnerabilityDetails struct {
 	Asset
@@ -19,5 +21,5 @@ type VulnerabilityDetails struct {
 
 // Hydrator represents an interface for hydrating an Asset with vulnerability details
 type Hydrator interface {
-	HydrateVulnerabilities(Asset) (AssetVulnerabilityDetails, error)
+	HydrateVulnerabilities(context.Context, Asset) (AssetVulnerabilityDetails, error)
 }

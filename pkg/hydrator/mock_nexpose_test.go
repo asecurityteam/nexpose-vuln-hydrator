@@ -6,9 +6,9 @@ package hydrator
 
 import (
 	context "context"
-	domain "github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockVulnerabilitySolutionsFetcher is a mock of VulnerabilitySolutionsFetcher interface
@@ -107,9 +107,9 @@ func (m *MockAssetVulnerabilitiesFetcher) EXPECT() *MockAssetVulnerabilitiesFetc
 }
 
 // FetchAssetVulnerabilities mocks base method
-func (m *MockAssetVulnerabilitiesFetcher) FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]domain.NexposeAssetVulnerability, error) {
+func (m *MockAssetVulnerabilitiesFetcher) FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]nexposeAssetVulnerability, error) {
 	ret := m.ctrl.Call(m, "FetchAssetVulnerabilities", ctx, assetID)
-	ret0, _ := ret[0].([]domain.NexposeAssetVulnerability)
+	ret0, _ := ret[0].([]nexposeAssetVulnerability)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -143,9 +143,9 @@ func (m *MockVulnerabilityDetailsFetcher) EXPECT() *MockVulnerabilityDetailsFetc
 }
 
 // FetchVulnerabilityDetails mocks base method
-func (m *MockVulnerabilityDetailsFetcher) FetchVulnerabilityDetails(ctx context.Context, vulnID string) (domain.NexposeVulnerability, error) {
+func (m *MockVulnerabilityDetailsFetcher) FetchVulnerabilityDetails(ctx context.Context, vulnID string) (nexposeVulnerability, error) {
 	ret := m.ctrl.Call(m, "FetchVulnerabilityDetails", ctx, vulnID)
-	ret0, _ := ret[0].(domain.NexposeVulnerability)
+	ret0, _ := ret[0].(nexposeVulnerability)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -20,7 +20,7 @@ func (b *batchSolutionFetcher) BatchFetchSolution(ctx context.Context, solutionI
 	defer cancel()
 
 	solutionsChan := make(chan string, len(solutionIDs))
-	errorChan := make(chan error, 1)
+	errorChan := make(chan error, len(solutionIDs))
 
 	for _, solutionID := range solutionIDs {
 		go func(id string) {
@@ -33,14 +33,14 @@ func (b *batchSolutionFetcher) BatchFetchSolution(ctx context.Context, solutionI
 		}(solutionID)
 	}
 
-	solutions := make([]string, len(solutionIDs))
-	for i := range solutionIDs {
+	solutions := make([]string, 0, len(solutionIDs))
+	for range solutionIDs {
 		select {
 		case solution := <-solutionsChan:
-			solutions[i] = solution
+			solutions = append(solutions, solution)
 		case err := <-errorChan:
 			cancel()
-			return []string{}, err
+			return nil, err
 		}
 	}
 
@@ -50,7 +50,7 @@ func (b *batchSolutionFetcher) BatchFetchSolution(ctx context.Context, solutionI
 // AssetVulnerabilityHydrator represents an interface for hydrating an asset vulnerability with
 // details and solutions
 type AssetVulnerabilityHydrator interface {
-	HydrateAssetVulnerability(ctx context.Context, assetVulnerability domain.NexposeAssetVulnerability) (domain.VulnerabilityDetails, error)
+	HydrateAssetVulnerability(ctx context.Context, assetVulnerability nexposeAssetVulnerability) (domain.VulnerabilityDetails, error)
 }
 
 type assetVulnerabilityHydrator struct {
@@ -59,13 +59,13 @@ type assetVulnerabilityHydrator struct {
 	BatchSolutionFetcher          BatchSolutionFetcher
 }
 
-func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Context, assetVulnerability domain.NexposeAssetVulnerability) (domain.VulnerabilityDetails, error) {
+func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Context, assetVulnerability nexposeAssetVulnerability) (domain.VulnerabilityDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	errorChan := make(chan error, 2)
 
-	vulnerabilityDetailsChan := make(chan domain.NexposeVulnerability, 1)
+	vulnerabilityDetailsChan := make(chan nexposeVulnerability, 1)
 	go func() {
 		details, err := a.VulnerabilityDetailsFetcher.FetchVulnerabilityDetails(ctx, assetVulnerability.ID)
 		if err != nil {
@@ -90,7 +90,7 @@ func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Conte
 		solutionsChan <- solutions
 	}()
 
-	vulnerabilityDetails := &domain.VulnerabilityDetails{
+	vulnerabilityDetails := domain.VulnerabilityDetails{
 		ID:      assetVulnerability.ID,
 		Results: assetVulnerability.Results,
 	}
@@ -110,19 +110,19 @@ func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Conte
 		}
 	}
 
-	return *vulnerabilityDetails, nil
+	return vulnerabilityDetails, nil
 }
 
 // BatchAssetVulnerabilityHydrator represents an interface for concurrently hydrating asset vulnerabilities
 type BatchAssetVulnerabilityHydrator interface {
-	BatchHydrateAssetVulnerabilities(ctx context.Context, assetVulns []domain.NexposeAssetVulnerability) ([]domain.VulnerabilityDetails, error)
+	BatchHydrateAssetVulnerabilities(ctx context.Context, assetVulns []nexposeAssetVulnerability) ([]domain.VulnerabilityDetails, error)
 }
 
 type batchAssetVulnerabilityHydrator struct {
 	AssetVulnerabilityHydrator AssetVulnerabilityHydrator
 }
 
-func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx context.Context, assetVulns []domain.NexposeAssetVulnerability) ([]domain.VulnerabilityDetails, error) {
+func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx context.Context, assetVulns []nexposeAssetVulnerability) ([]domain.VulnerabilityDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -130,7 +130,7 @@ func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx c
 	errorChan := make(chan error, 1)
 
 	for _, assetVuln := range assetVulns {
-		go func(assetVuln domain.NexposeAssetVulnerability) {
+		go func(assetVuln nexposeAssetVulnerability) {
 			details, err := b.AssetVulnerabilityHydrator.HydrateAssetVulnerability(ctx, assetVuln)
 			if err != nil {
 				errorChan <- err

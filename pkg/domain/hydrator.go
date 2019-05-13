@@ -8,6 +8,12 @@ type AssetVulnerabilityDetails struct {
 	Vulnerabilities []VulnerabilityDetails
 }
 
+// AssessmentResult contains port and protcol information from Nexpose scanning
+type AssessmentResult struct {
+	Port     int32
+	Protocol string
+}
+
 // VulnerabilityDetails contains the vulnerability information
 type VulnerabilityDetails struct {
 	ID             string

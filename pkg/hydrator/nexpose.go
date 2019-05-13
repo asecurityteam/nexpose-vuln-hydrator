@@ -6,6 +6,18 @@ import (
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 )
 
+type nexposeAssetVulnerability struct {
+	ID      string
+	Results []domain.AssessmentResult
+}
+
+type nexposeVulnerability struct {
+	CvssV2Score    float64
+	CvssV2Severity string
+	Description    string
+	Title          string
+}
+
 // VulnerabilitySolutionsFetcher represents an interface for fetching vulnerability solutions
 type VulnerabilitySolutionsFetcher interface {
 	FetchVulnerabilitySolutions(ctx context.Context, vulnID string) ([]string, error)
@@ -18,10 +30,10 @@ type SolutionFetcher interface {
 
 // AssetVulnerabilitiesFetcher represents an interface for fetching asset vulnerabilities
 type AssetVulnerabilitiesFetcher interface {
-	FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]domain.NexposeAssetVulnerability, error)
+	FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]nexposeAssetVulnerability, error)
 }
 
 // VulnerabilityDetailsFetcher represents an interface for fetching vulnerability details
 type VulnerabilityDetailsFetcher interface {
-	FetchVulnerabilityDetails(ctx context.Context, vulnID string) (domain.NexposeVulnerability, error)
+	FetchVulnerabilityDetails(ctx context.Context, vulnID string) (nexposeVulnerability, error)
 }

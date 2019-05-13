@@ -127,7 +127,7 @@ func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx c
 	defer cancel()
 
 	vulnerabilityDetailsChan := make(chan domain.VulnerabilityDetails, len(assetVulns))
-	errorChan := make(chan error, 1)
+	errorChan := make(chan error, len(assetVulns))
 
 	for _, assetVuln := range assetVulns {
 		go func(assetVuln nexposeAssetVulnerability) {
@@ -140,11 +140,11 @@ func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx c
 		}(assetVuln)
 	}
 
-	vulnerabilityDetails := make([]domain.VulnerabilityDetails, len(assetVulns))
-	for i := range assetVulns {
+	vulnerabilityDetails := make([]domain.VulnerabilityDetails, 0, len(assetVulns))
+	for range assetVulns {
 		select {
 		case details := <-vulnerabilityDetailsChan:
-			vulnerabilityDetails[i] = details
+			vulnerabilityDetails = append(vulnerabilityDetails, details)
 		case err := <-errorChan:
 			cancel()
 			return nil, err

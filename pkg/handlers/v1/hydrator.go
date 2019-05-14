@@ -50,7 +50,7 @@ type AssessmentResult struct {
 func (h *HydrationHandler) Handle(ctx context.Context, evt AssetEvent) (AssetVulnerabilitiesEvent, error) {
 	logger := h.LogFn(ctx)
 	asset := domain.Asset(evt)
-	assetWithVulnerabilityDetails, err := h.Hydrator.HydrateVulnerabilities(asset)
+	assetWithVulnerabilityDetails, err := h.Hydrator.HydrateVulnerabilities(ctx, asset)
 	if err != nil {
 		logger.Error(logs.HydrationError{Reason: err.Error()})
 		return AssetVulnerabilitiesEvent{}, err

@@ -172,11 +172,7 @@ type NexposeClient struct {
 
 // FetchVulnerabilitySolutions fetches the solutions to a particular vulnerability
 func (n *NexposeClient) FetchVulnerabilitySolutions(ctx context.Context, vulnID string) ([]string, error) {
-	u, _ := url.Parse(n.Host.String())
-	u.Path = path.Join("api", "3", "vulnerabilities", vulnID, "solutions")
-	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
-	req.SetBasicAuth(n.Username, n.Password)
-
+	req := n.newNexposeRequest(nil, "api", "3", "vulnerabilities", vulnID, "solutions")
 	res, err := n.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -197,10 +193,7 @@ func (n *NexposeClient) FetchVulnerabilitySolutions(ctx context.Context, vulnID 
 
 // FetchSolution fetches details about a particular solution
 func (n *NexposeClient) FetchSolution(ctx context.Context, solutionID string) (string, error) {
-	u, _ := url.Parse(n.Host.String())
-	u.Path = path.Join("api", "3", "solutions", solutionID)
-	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
-	req.SetBasicAuth(n.Username, n.Password)
+	req := n.newNexposeRequest(nil, "api", "3", "solutions", solutionID)
 	res, err := n.Client.Do(req)
 	if err != nil {
 		return "", err
@@ -221,10 +214,7 @@ func (n *NexposeClient) FetchSolution(ctx context.Context, solutionID string) (s
 
 // FetchVulnerabilityDetails fetches details about a particular vulnerability
 func (n *NexposeClient) FetchVulnerabilityDetails(ctx context.Context, vulnID string) (NexposeVulnerability, error) {
-	u, _ := url.Parse(n.Host.String())
-	u.Path = path.Join("api", "3", "vulnerabilities", vulnID)
-	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
-	req.SetBasicAuth(n.Username, n.Password)
+	req := n.newNexposeRequest(nil, "api", "3", "vulnerabilities", vulnID)
 	res, err := n.Client.Do(req)
 	if err != nil {
 		return NexposeVulnerability{}, err
@@ -293,7 +283,6 @@ func (n *NexposeClient) FetchAssetVulnerabilities(ctx context.Context, assetID i
 
 func (n *NexposeClient) makePagedAssetVulnerabilitiesRequest(assetID int64, page int, assetVulnsChannel chan NexposeAssetVulnerability, errorChan chan error) {
 	req := n.newAssetVulnerabilitiesRequest(assetID, page)
-	req.SetBasicAuth(n.Username, n.Password)
 	res, err := n.Client.Do(req)
 	if err != nil {
 		errorChan <- err
@@ -318,11 +307,19 @@ func (n *NexposeClient) makePagedAssetVulnerabilitiesRequest(assetID int64, page
 }
 
 func (n *NexposeClient) newAssetVulnerabilitiesRequest(assetID int64, page int) *http.Request {
+	req := n.newNexposeRequest(
+		map[string]string{pageQueryParam: strconv.Itoa(page), sizeQueryParam: strconv.Itoa(n.PageSize)},
+		"api", "3", "assets", strconv.FormatInt(assetID, 10), "vulnerabilities")
+	return req
+}
+
+func (n *NexposeClient) newNexposeRequest(queryParams map[string]string, pathFragments ...string) *http.Request {
 	u, _ := url.Parse(n.Host.String())
-	u.Path = path.Join("api", "3", "assets", strconv.FormatInt(assetID, 10), "vulnerabilities")
+	u.Path = path.Join(pathFragments...)
 	q := u.Query()
-	q.Set(pageQueryParam, strconv.Itoa(page))
-	q.Set(sizeQueryParam, strconv.Itoa(n.PageSize))
+	for k, v := range queryParams {
+		q.Set(k, v)
+	}
 	u.RawQuery = q.Encode()
 	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
 	req.SetBasicAuth(n.Username, n.Password)

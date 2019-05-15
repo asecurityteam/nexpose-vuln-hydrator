@@ -26,11 +26,12 @@ func (r *errReader) Read(_ []byte) (int, error) {
 	return 0, r.Error
 }
 
-type requestURLMatcher struct {
-	URL string
+type requestMatcher struct {
+	URL     string
+	Headers []string
 }
 
-func (r *requestURLMatcher) Matches(x interface{}) bool {
+func (r *requestMatcher) Matches(x interface{}) bool {
 	req, ok := x.(*http.Request)
 	if !ok {
 		return false
@@ -38,10 +39,15 @@ func (r *requestURLMatcher) Matches(x interface{}) bool {
 	if req.URL.String() != r.URL {
 		return false
 	}
+	for _, header := range r.Headers {
+		if _, ok := req.Header[header]; !ok {
+			return false
+		}
+	}
 	return true
 }
 
-func (r *requestURLMatcher) String() string {
+func (r *requestMatcher) String() string {
 	return "Compares request URL for equality."
 }
 
@@ -57,13 +63,6 @@ func TestFetchVulnerabilitySolutions(t *testing.T) {
 			"request error",
 			nil,
 			fmt.Errorf("error making request"),
-			true,
-			nil,
-		},
-		{
-			"io error",
-			&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf("io read error")})},
-			nil,
 			true,
 			nil,
 		},
@@ -89,7 +88,7 @@ func TestFetchVulnerabilitySolutions(t *testing.T) {
 			defer ctrl.Finish()
 			mockRT := NewMockRoundTripper(ctrl)
 			mockRT.EXPECT().RoundTrip(
-				&requestURLMatcher{URL: "http://nexpose.com/api/3/vulnerabilities/vulnID/solutions"},
+				&requestMatcher{URL: "http://nexpose.com/api/3/vulnerabilities/vulnID/solutions"},
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
@@ -125,13 +124,6 @@ func TestFetchSolution(t *testing.T) {
 			"",
 		},
 		{
-			"io error",
-			&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf("io read error")})},
-			nil,
-			true,
-			"",
-		},
-		{
 			"invalid json error",
 			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`)))},
 			nil,
@@ -153,7 +145,7 @@ func TestFetchSolution(t *testing.T) {
 			defer ctrl.Finish()
 			mockRT := NewMockRoundTripper(ctrl)
 			mockRT.EXPECT().RoundTrip(
-				&requestURLMatcher{URL: "http://nexpose.com/api/3/solutions/solutionID"},
+				&requestMatcher{URL: "http://nexpose.com/api/3/solutions/solutionID"},
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
@@ -188,13 +180,6 @@ func TestFetchVulnerabilityDetails(t *testing.T) {
 			NexposeVulnerability{},
 		},
 		{
-			"io error",
-			&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf("io read error")})},
-			nil,
-			true,
-			NexposeVulnerability{},
-		},
-		{
 			"invalid json error",
 			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`)))},
 			nil,
@@ -221,7 +206,7 @@ func TestFetchVulnerabilityDetails(t *testing.T) {
 			defer ctrl.Finish()
 			mockRT := NewMockRoundTripper(ctrl)
 			mockRT.EXPECT().RoundTrip(
-				&requestURLMatcher{URL: "http://nexpose.com/api/3/vulnerabilities/vulnID"},
+				&requestMatcher{URL: "http://nexpose.com/api/3/vulnerabilities/vulnID"},
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
@@ -259,17 +244,6 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 				{
 					nil,
 					fmt.Errorf("error making request"),
-				},
-			},
-			true,
-			nil,
-		},
-		{
-			"io error",
-			[]response{
-				{
-					&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf("io read error")})},
-					nil,
 				},
 			},
 			true,
@@ -365,7 +339,7 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			calls := make([]*gomock.Call, 0, len(test.responses))
 			for reqNum, response := range test.responses {
 				calls = append(calls, mockRT.EXPECT().RoundTrip(
-					&requestURLMatcher{URL: fmt.Sprintf("http://nexpose.com/api/3/assets/111111/vulnerabilities?page=%d&size=0", reqNum)},
+					&requestMatcher{URL: fmt.Sprintf("http://nexpose.com/api/3/assets/111111/vulnerabilities?page=%d&size=0", reqNum)},
 				).Return(response.res, response.err))
 			}
 			gomock.InOrder(calls...)
@@ -396,20 +370,6 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 		expectedNexposeAssetVuln NexposeAssetVulnerability
 	}{
 		{
-			"request error",
-			nil,
-			fmt.Errorf("error making request"),
-			true,
-			NexposeAssetVulnerability{},
-		},
-		{
-			"io error",
-			&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf("io read error")})},
-			nil,
-			true,
-			NexposeAssetVulnerability{},
-		},
-		{
 			"invalid json error",
 			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`)))},
 			nil,
@@ -431,7 +391,7 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 			defer ctrl.Finish()
 			mockRT := NewMockRoundTripper(ctrl)
 			mockRT.EXPECT().RoundTrip(
-				&requestURLMatcher{URL: "http://nexpose.com/api/3/assets/111111/vulnerabilities?page=1&size=0"},
+				&requestMatcher{URL: "http://nexpose.com/api/3/assets/111111/vulnerabilities?page=1&size=0"},
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
@@ -457,16 +417,6 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 	}
 }
 
-func TestNewAssetVulnerabilitiesRequest(t *testing.T) {
-	clientURL, _ := url.Parse(nexposeHost)
-	client := NexposeClient{
-		Host: clientURL,
-	}
-
-	req := client.newAssetVulnerabilitiesRequest(111111, 1)
-	assert.Equal(t, "http://nexpose.com/api/3/assets/111111/vulnerabilities?page=1&size=0", req.URL.String())
-}
-
 func TestAssetVulnToNexposeAssetVuln(t *testing.T) {
 	resource := resource{
 		ID:      "vulnID",
@@ -486,17 +436,61 @@ func TestAssetVulnToNexposeAssetVuln(t *testing.T) {
 	)
 }
 
-func TestNewNexposeRequest(t *testing.T) {
-	clientURL, _ := url.Parse(nexposeHost)
-	client := NexposeClient{
-		Host:     clientURL,
-		Username: "username",
-		Password: "password",
+func TestMakeNexposeRequest(t *testing.T) {
+	tests := []struct {
+		name          string
+		response      *http.Response
+		reqError      error
+		expectedError bool
+		expectedBody  []byte
+	}{
+		{
+			"request error",
+			nil,
+			fmt.Errorf("error making request"),
+			true,
+			nil,
+		},
+		{
+			"io error",
+			&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf("io read error")})},
+			nil,
+			true,
+			nil,
+		},
+		{
+			"success",
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte("response")))},
+			nil,
+			false,
+			[]byte("response"),
+		},
 	}
 
-	req := client.newNexposeRequest(map[string]string{"key1": "value1"}, "this", "is", "my", "path")
-	assert.Equal(t, "http://nexpose.com/this/is/my/path?key1=value1", req.URL.String())
-	assert.Contains(t, req.Header, "Authorization")
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			ctrl := gomock.NewController(tt)
+			defer ctrl.Finish()
+			mockRT := NewMockRoundTripper(ctrl)
+			mockRT.EXPECT().RoundTrip(
+				&requestMatcher{URL: "http://nexpose.com/this/is/my/path?key1=value1", Headers: []string{"Authorization"}},
+			).Return(test.response, test.reqError)
+			clientURL, _ := url.Parse(nexposeHost)
+			client := NexposeClient{
+				Client:   &http.Client{Transport: mockRT},
+				Host:     clientURL,
+				Username: "username",
+				Password: "password",
+			}
+
+			body, err := client.makeNexposeRequest(map[string]string{"key1": "value1"}, "this", "is", "my", "path")
+			if test.expectedError {
+				assert.NotNil(tt, err)
+			} else {
+				assert.Equal(tt, test.expectedBody, body)
+			}
+		})
+	}
 }
 
 func TestCvssSeverity(t *testing.T) {

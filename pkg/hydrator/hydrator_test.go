@@ -14,7 +14,7 @@ func TestHydrator(t *testing.T) {
 	var assetID int64 = 111111
 	tests := []struct {
 		name                     string
-		assetVulnsResult         []nexposeAssetVulnerability
+		assetVulnsResult         []NexposeAssetVulnerability
 		assetVulnsError          error
 		hydrateVulnsResult       []domain.VulnerabilityDetails
 		hydrateVulnsError        error
@@ -23,7 +23,7 @@ func TestHydrator(t *testing.T) {
 	}{
 		{
 			"success",
-			[]nexposeAssetVulnerability{nexposeAssetVulnerability{ID: "vuln1"}},
+			[]NexposeAssetVulnerability{NexposeAssetVulnerability{ID: "vuln1"}},
 			nil,
 			[]domain.VulnerabilityDetails{domain.VulnerabilityDetails{ID: "vuln1"}},
 			nil,
@@ -46,7 +46,7 @@ func TestHydrator(t *testing.T) {
 		},
 		{
 			"hydrate asset vulns error",
-			[]nexposeAssetVulnerability{nexposeAssetVulnerability{ID: "vuln1"}},
+			[]NexposeAssetVulnerability{NexposeAssetVulnerability{ID: "vuln1"}},
 			nil,
 			nil,
 			fmt.Errorf("fetch asset vulns error"),

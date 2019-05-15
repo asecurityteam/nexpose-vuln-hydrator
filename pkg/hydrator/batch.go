@@ -50,7 +50,7 @@ func (b *batchSolutionFetcher) BatchFetchSolution(ctx context.Context, solutionI
 // AssetVulnerabilityHydrator represents an interface for hydrating an asset vulnerability with
 // details and solutions
 type AssetVulnerabilityHydrator interface {
-	HydrateAssetVulnerability(ctx context.Context, assetVulnerability nexposeAssetVulnerability) (domain.VulnerabilityDetails, error)
+	HydrateAssetVulnerability(ctx context.Context, assetVulnerability NexposeAssetVulnerability) (domain.VulnerabilityDetails, error)
 }
 
 type assetVulnerabilityHydrator struct {
@@ -59,13 +59,13 @@ type assetVulnerabilityHydrator struct {
 	BatchSolutionFetcher          BatchSolutionFetcher
 }
 
-func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Context, assetVulnerability nexposeAssetVulnerability) (domain.VulnerabilityDetails, error) {
+func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Context, assetVulnerability NexposeAssetVulnerability) (domain.VulnerabilityDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	errorChan := make(chan error, 2)
 
-	vulnerabilityDetailsChan := make(chan nexposeVulnerability, 1)
+	vulnerabilityDetailsChan := make(chan NexposeVulnerability, 1)
 	go func() {
 		details, err := a.VulnerabilityDetailsFetcher.FetchVulnerabilityDetails(ctx, assetVulnerability.ID)
 		if err != nil {
@@ -115,14 +115,14 @@ func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Conte
 
 // BatchAssetVulnerabilityHydrator represents an interface for concurrently hydrating asset vulnerabilities
 type BatchAssetVulnerabilityHydrator interface {
-	BatchHydrateAssetVulnerabilities(ctx context.Context, assetVulns []nexposeAssetVulnerability) ([]domain.VulnerabilityDetails, error)
+	BatchHydrateAssetVulnerabilities(ctx context.Context, assetVulns []NexposeAssetVulnerability) ([]domain.VulnerabilityDetails, error)
 }
 
 type batchAssetVulnerabilityHydrator struct {
 	AssetVulnerabilityHydrator AssetVulnerabilityHydrator
 }
 
-func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx context.Context, assetVulns []nexposeAssetVulnerability) ([]domain.VulnerabilityDetails, error) {
+func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx context.Context, assetVulns []NexposeAssetVulnerability) ([]domain.VulnerabilityDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -130,7 +130,7 @@ func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx c
 	errorChan := make(chan error, len(assetVulns))
 
 	for _, assetVuln := range assetVulns {
-		go func(assetVuln nexposeAssetVulnerability) {
+		go func(assetVuln NexposeAssetVulnerability) {
 			details, err := b.AssetVulnerabilityHydrator.HydrateAssetVulnerability(ctx, assetVuln)
 			if err != nil {
 				errorChan <- err

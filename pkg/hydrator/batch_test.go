@@ -51,7 +51,7 @@ func TestHydrateAssetVulnerabilityDetailsFetchError(t *testing.T) {
 
 	mockVulnDetailsFetcher.EXPECT().
 		FetchVulnerabilityDetails(gomock.Any(), "vulnID").
-		Return(nexposeVulnerability{}, fmt.Errorf("details fetch error"))
+		Return(NexposeVulnerability{}, fmt.Errorf("details fetch error"))
 	mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), "vulnID").Return([]string{"solution1", "solution2"}, nil)
 	mockBatchSolutionsFetcher.EXPECT().BatchFetchSolution(gomock.Any(), []string{"solution1", "solution2"}).Return([]string{"solution1-steps", "solution2-steps"}, nil)
 
@@ -63,7 +63,7 @@ func TestHydrateAssetVulnerabilityDetailsFetchError(t *testing.T) {
 
 	_, err := assetVulnHydrator.HydrateAssetVulnerability(
 		context.Background(),
-		nexposeAssetVulnerability{
+		NexposeAssetVulnerability{
 			ID:      "vulnID",
 			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}}},
 	)
@@ -78,7 +78,7 @@ func TestHydrateAssetVulnerabilityVulnSolutionsFetchError(t *testing.T) {
 
 	mockVulnDetailsFetcher.EXPECT().
 		FetchVulnerabilityDetails(gomock.Any(), "vulnID").
-		Return(nexposeVulnerability{}, nil)
+		Return(NexposeVulnerability{}, nil)
 	mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), "vulnID").Return([]string{}, fmt.Errorf("vuln solutions fetch error"))
 
 	assetVulnHydrator := assetVulnerabilityHydrator{
@@ -89,7 +89,7 @@ func TestHydrateAssetVulnerabilityVulnSolutionsFetchError(t *testing.T) {
 
 	_, err := assetVulnHydrator.HydrateAssetVulnerability(
 		context.Background(),
-		nexposeAssetVulnerability{
+		NexposeAssetVulnerability{
 			ID:      "vulnID",
 			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}}},
 	)
@@ -104,7 +104,7 @@ func TestHydrateAssetVulnerabilityBatchSolutionsFetchError(t *testing.T) {
 
 	mockVulnDetailsFetcher.EXPECT().
 		FetchVulnerabilityDetails(gomock.Any(), "vulnID").
-		Return(nexposeVulnerability{}, fmt.Errorf("details fetch error"))
+		Return(NexposeVulnerability{}, fmt.Errorf("details fetch error"))
 	mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), "vulnID").Return([]string{"solution1", "solution2"}, nil)
 	mockBatchSolutionsFetcher.EXPECT().BatchFetchSolution(gomock.Any(), []string{"solution1", "solution2"}).Return([]string{}, fmt.Errorf("batch solution fetch error"))
 
@@ -116,7 +116,7 @@ func TestHydrateAssetVulnerabilityBatchSolutionsFetchError(t *testing.T) {
 
 	_, err := assetVulnHydrator.HydrateAssetVulnerability(
 		context.Background(),
-		nexposeAssetVulnerability{
+		NexposeAssetVulnerability{
 			ID:      "vulnID",
 			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}}},
 	)
@@ -127,7 +127,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 	vulnID := "vulnID"
 	tests := []struct {
 		name                string
-		detailsResult       nexposeVulnerability
+		detailsResult       NexposeVulnerability
 		detailsErr          error
 		solutionsResult     []string
 		vulnSolutionsErr    error
@@ -138,7 +138,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 	}{
 		{
 			"success",
-			nexposeVulnerability{
+			NexposeVulnerability{
 				CvssV2Score:    6.5,
 				CvssV2Severity: "Medium",
 				Description:    "medium severity vuln",
@@ -164,7 +164,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 		},
 		{
 			"details fetch error",
-			nexposeVulnerability{},
+			NexposeVulnerability{},
 			fmt.Errorf("details fetch error"),
 			[]string{"solution1", "solution2"},
 			nil,
@@ -175,7 +175,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 		},
 		{
 			"vuln solutions fetch error",
-			nexposeVulnerability{},
+			NexposeVulnerability{},
 			nil,
 			nil,
 			fmt.Errorf("vuln solutions fetch error"),
@@ -186,7 +186,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 		},
 		{
 			"solutions fetch error",
-			nexposeVulnerability{},
+			NexposeVulnerability{},
 			nil,
 			[]string{"solution1", "solution2"},
 			nil,
@@ -197,7 +197,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 		},
 		{
 			"details and vuln solutions fetch error",
-			nexposeVulnerability{},
+			NexposeVulnerability{},
 			fmt.Errorf("details fetch error"),
 			nil,
 			fmt.Errorf("vuln solutions fetch error"),
@@ -208,7 +208,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 		},
 		{
 			"details and solutions fetch error",
-			nexposeVulnerability{},
+			NexposeVulnerability{},
 			fmt.Errorf("details fetch error"),
 			[]string{"solution1", "solution2"},
 			nil,
@@ -238,7 +238,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 
 			hydratedVuln, err := assetVulnHydrator.HydrateAssetVulnerability(
 				context.Background(),
-				nexposeAssetVulnerability{
+				NexposeAssetVulnerability{
 					ID:      vulnID,
 					Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}}},
 			)
@@ -260,8 +260,8 @@ func TestBatchAssetVulnerabilityHydratorSuccess(t *testing.T) {
 	batchAssetVulnHydrator := batchAssetVulnerabilityHydrator{mockAssetVulnerabilityHydrator}
 	vulnDetails, err := batchAssetVulnHydrator.BatchHydrateAssetVulnerabilities(
 		context.Background(),
-		[]nexposeAssetVulnerability{
-			nexposeAssetVulnerability{
+		[]NexposeAssetVulnerability{
+			NexposeAssetVulnerability{
 				ID: "vuln1",
 			},
 		},
@@ -280,11 +280,11 @@ func TestBatchAssetVulnerabilityHydratorMultiple(t *testing.T) {
 	batchAssetVulnHydrator := batchAssetVulnerabilityHydrator{mockAssetVulnerabilityHydrator}
 	vulnDetails, err := batchAssetVulnHydrator.BatchHydrateAssetVulnerabilities(
 		context.Background(),
-		[]nexposeAssetVulnerability{
-			nexposeAssetVulnerability{
+		[]NexposeAssetVulnerability{
+			NexposeAssetVulnerability{
 				ID: "vuln1",
 			},
-			nexposeAssetVulnerability{
+			NexposeAssetVulnerability{
 				ID: "vuln2",
 			},
 		},
@@ -302,8 +302,8 @@ func TestBatchAssetVulnerabilityHydratorError(t *testing.T) {
 	batchAssetVulnHydrator := batchAssetVulnerabilityHydrator{mockAssetVulnerabilityHydrator}
 	vulnDetails, err := batchAssetVulnHydrator.BatchHydrateAssetVulnerabilities(
 		context.Background(),
-		[]nexposeAssetVulnerability{
-			nexposeAssetVulnerability{
+		[]NexposeAssetVulnerability{
+			NexposeAssetVulnerability{
 				ID: "vuln1",
 			},
 		},

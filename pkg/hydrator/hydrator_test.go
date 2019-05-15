@@ -74,3 +74,8 @@ func TestHydrator(t *testing.T) {
 		})
 	}
 }
+
+func TestNewHydrator(t *testing.T) {
+	newHydrator := NewHydrator(&NexposeClient{})
+	assert.IsType(t, newHydrator, &Hydrator{})
+}

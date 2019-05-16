@@ -363,25 +363,32 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 
 func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 	tests := []struct {
-		name                     string
-		response                 *http.Response
-		reqError                 error
-		expectedError            bool
-		expectedNexposeAssetVuln NexposeAssetVulnerability
+		name                      string
+		response                  *http.Response
+		reqError                  error
+		expectedError             bool
+		expectedNexposeAssetVulns []NexposeAssetVulnerability
 	}{
+		{
+			"error",
+			nil,
+			fmt.Errorf("error"),
+			true,
+			nil,
+		},
 		{
 			"invalid json error",
 			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`)))},
 			nil,
 			true,
-			NexposeAssetVulnerability{},
+			nil,
 		},
 		{
 			"success",
 			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"resources": [{"id": "vuln1", "results": [{"port": 80, "protocol": "tcp"}]}]}`)))},
 			nil,
-			true,
-			NexposeAssetVulnerability{ID: "vuln1", Results: []domain.AssessmentResult{{Port: 80, Protocol: "tcp"}}},
+			false,
+			[]NexposeAssetVulnerability{{ID: "vuln1", Results: []domain.AssessmentResult{{Port: 80, Protocol: "tcp"}}}},
 		},
 	}
 
@@ -399,19 +406,13 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 				Host:   clientURL,
 			}
 
-			assetVulnsChan := make(chan NexposeAssetVulnerability, 1)
-			errorChan := make(chan error, 1)
-			client.makePagedAssetVulnerabilitiesRequest(111111, 1, assetVulnsChan, errorChan)
+			assetVulns, err := client.makePagedAssetVulnerabilitiesRequest(111111, 1)
 
-			select {
-			case err := <-errorChan:
-				if test.expectedError {
-					assert.NotNil(tt, err)
-				} else {
-					tt.Fatalf("Unexpected error: %s", err.Error())
-				}
-			case assetVuln := <-assetVulnsChan:
-				assert.Equal(tt, test.expectedNexposeAssetVuln, assetVuln)
+			if test.expectedError {
+				assert.NotNil(tt, err)
+			} else {
+				assert.Nil(tt, err)
+				assert.ElementsMatch(tt, test.expectedNexposeAssetVulns, assetVulns)
 			}
 		})
 	}

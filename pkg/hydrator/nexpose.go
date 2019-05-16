@@ -241,7 +241,16 @@ func (n *NexposeClient) FetchAssetVulnerabilities(ctx context.Context, assetID i
 	}
 
 	for curPage := 1; curPage < pages; curPage = curPage + 1 {
-		go n.makePagedAssetVulnerabilitiesRequest(assetID, curPage, assetVulnsChannel, errorChan)
+		go func(curPage int) {
+			nexposeAssetVulns, err := n.makePagedAssetVulnerabilitiesRequest(assetID, curPage)
+			if err != nil {
+				errorChan <- err
+				return
+			}
+			for _, vuln := range nexposeAssetVulns {
+				assetVulnsChannel <- vuln
+			}
+		}(curPage)
 	}
 
 	nexposeAssetVulns := make([]NexposeAssetVulnerability, 0, totalResources)
@@ -256,24 +265,25 @@ func (n *NexposeClient) FetchAssetVulnerabilities(ctx context.Context, assetID i
 	return nexposeAssetVulns, nil
 }
 
-func (n *NexposeClient) makePagedAssetVulnerabilitiesRequest(assetID int64, page int, assetVulnsChannel chan NexposeAssetVulnerability, errorChan chan error) {
+func (n *NexposeClient) makePagedAssetVulnerabilitiesRequest(assetID int64, page int) ([]NexposeAssetVulnerability, error) {
 	body, err := n.makeNexposeRequest(
 		map[string]string{pageQueryParam: strconv.Itoa(page), sizeQueryParam: strconv.Itoa(n.PageSize)},
 		"api", "3", "assets", strconv.FormatInt(assetID, 10), "vulnerabilities",
 	)
 	if err != nil {
-		errorChan <- err
-		return
+		return nil, err
 	}
 	var assetVulns assetVulnerabilities
 	err = json.Unmarshal(body, &assetVulns)
 	if err != nil {
-		errorChan <- err
-		return
+		return nil, err
 	}
+
+	nexposeAssetVulns := make([]NexposeAssetVulnerability, 0, len(assetVulns.Resources))
 	for _, resource := range assetVulns.Resources {
-		assetVulnsChannel <- assetVulnToNexposeAssetVuln(resource)
+		nexposeAssetVulns = append(nexposeAssetVulns, assetVulnToNexposeAssetVuln(resource))
 	}
+	return nexposeAssetVulns, nil
 }
 
 func (n *NexposeClient) makeNexposeRequest(queryParams map[string]string, pathFragments ...string) ([]byte, error) {

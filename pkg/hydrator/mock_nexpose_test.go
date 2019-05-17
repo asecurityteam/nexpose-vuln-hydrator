@@ -107,9 +107,9 @@ func (m *MockAssetVulnerabilitiesFetcher) EXPECT() *MockAssetVulnerabilitiesFetc
 }
 
 // FetchAssetVulnerabilities mocks base method
-func (m *MockAssetVulnerabilitiesFetcher) FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]nexposeAssetVulnerability, error) {
+func (m *MockAssetVulnerabilitiesFetcher) FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]NexposeAssetVulnerability, error) {
 	ret := m.ctrl.Call(m, "FetchAssetVulnerabilities", ctx, assetID)
-	ret0, _ := ret[0].([]nexposeAssetVulnerability)
+	ret0, _ := ret[0].([]NexposeAssetVulnerability)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -143,9 +143,9 @@ func (m *MockVulnerabilityDetailsFetcher) EXPECT() *MockVulnerabilityDetailsFetc
 }
 
 // FetchVulnerabilityDetails mocks base method
-func (m *MockVulnerabilityDetailsFetcher) FetchVulnerabilityDetails(ctx context.Context, vulnID string) (nexposeVulnerability, error) {
+func (m *MockVulnerabilityDetailsFetcher) FetchVulnerabilityDetails(ctx context.Context, vulnID string) (NexposeVulnerability, error) {
 	ret := m.ctrl.Call(m, "FetchVulnerabilityDetails", ctx, vulnID)
-	ret0, _ := ret[0].(nexposeVulnerability)
+	ret0, _ := ret[0].(NexposeVulnerability)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

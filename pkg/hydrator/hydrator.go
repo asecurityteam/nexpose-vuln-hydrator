@@ -29,3 +29,19 @@ func (h *Hydrator) HydrateVulnerabilities(ctx context.Context, a domain.Asset) (
 		Vulnerabilities: hydratedVulnerabilities,
 	}, nil
 }
+
+// NewHydrator configures and returns a new Hydrator
+func NewHydrator(c *NexposeClient) *Hydrator {
+	return &Hydrator{
+		AssetVulnerabilitiesFetcher: c,
+		BatchAssetVulnerabilityHydrator: &batchAssetVulnerabilityHydrator{
+			AssetVulnerabilityHydrator: &assetVulnerabilityHydrator{
+				VulnerabilityDetailsFetcher:   c,
+				VulnerabilitySolutionsFetcher: c,
+				BatchSolutionFetcher: &batchSolutionFetcher{
+					SolutionFetcher: c,
+				},
+			},
+		},
+	}
+}

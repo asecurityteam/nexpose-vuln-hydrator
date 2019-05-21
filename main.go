@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	nexposeConfigComponent := hydrator.NexposeConfigComponent{}
+	nexposeConfigComponent := &hydrator.NexposeConfigComponent{}
 	nexposeClient := new(hydrator.NexposeClient)
 	if err = settings.NewComponent(context.Background(), source, nexposeConfigComponent, nexposeClient); err != nil {
 		panic(err.Error())

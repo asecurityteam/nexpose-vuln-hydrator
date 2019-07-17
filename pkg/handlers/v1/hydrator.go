@@ -12,6 +12,7 @@ import (
 // and returns an AssetVulnerabilitiesEvent or error
 type HydrationHandler struct {
 	Hydrator domain.Hydrator
+	Producer domain.Producer
 	LogFn    domain.LogFn
 }
 
@@ -47,15 +48,17 @@ type AssessmentResult struct {
 }
 
 // Handle accepts AssetEvents and returns a hydrated asset containing vulnerability information
-func (h *HydrationHandler) Handle(ctx context.Context, evt AssetEvent) (AssetVulnerabilitiesEvent, error) {
+func (h *HydrationHandler) Handle(ctx context.Context, evt AssetEvent) error {
 	logger := h.LogFn(ctx)
 	asset := domain.Asset(evt)
 	assetWithVulnerabilityDetails, err := h.Hydrator.HydrateVulnerabilities(ctx, asset)
 	if err != nil {
 		logger.Error(logs.HydrationError{Reason: err.Error()})
-		return AssetVulnerabilitiesEvent{}, err
+		return err
 	}
-	return domainAssetVulnerabilityDetailsToEvent(assetWithVulnerabilityDetails), nil
+	assetVulnEvent := domainAssetVulnerabilityDetailsToEvent(assetWithVulnerabilityDetails)
+	_, err = h.Producer.Produce(ctx, assetVulnEvent)
+	return err
 }
 
 func domainAssetVulnerabilityDetailsToEvent(a domain.AssetVulnerabilityDetails) AssetVulnerabilitiesEvent {

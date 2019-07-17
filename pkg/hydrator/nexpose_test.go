@@ -92,8 +92,8 @@ func TestFetchVulnerabilitySolutions(t *testing.T) {
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
-				Client: &http.Client{Transport: mockRT},
-				Host:   clientURL,
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
 			}
 
 			solutions, err := client.FetchVulnerabilitySolutions(context.Background(), "vulnID")
@@ -149,8 +149,8 @@ func TestFetchSolution(t *testing.T) {
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
-				Client: &http.Client{Transport: mockRT},
-				Host:   clientURL,
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
 			}
 
 			resolution, err := client.FetchSolution(context.Background(), "solutionID")
@@ -210,8 +210,8 @@ func TestFetchVulnerabilityDetails(t *testing.T) {
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
-				Client: &http.Client{Transport: mockRT},
-				Host:   clientURL,
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
 			}
 
 			vulnDetails, err := client.FetchVulnerabilityDetails(context.Background(), "vulnID")
@@ -345,8 +345,8 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			gomock.InOrder(calls...)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
-				Client: &http.Client{Transport: mockRT},
-				Host:   clientURL,
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
 			}
 
 			assetVulns, err := client.FetchAssetVulnerabilities(context.Background(), 111111)
@@ -402,8 +402,8 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
-				Client: &http.Client{Transport: mockRT},
-				Host:   clientURL,
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
 			}
 
 			assetVulns, err := client.makePagedAssetVulnerabilitiesRequest(111111, 1)
@@ -419,11 +419,11 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 }
 
 func TestAssetVulnToNexposeAssetVuln(t *testing.T) {
-	resource := resource{
+	nexposeResource := resource{
 		ID:      "vulnID",
 		Results: []result{{Port: 443, Protocol: "tcp"}, {Port: 80, Protocol: "tcp"}},
 	}
-	nexposeAssetVuln := assetVulnToNexposeAssetVuln(resource)
+	nexposeAssetVuln := assetVulnToNexposeAssetVuln(nexposeResource)
 	assert.Equal(
 		t,
 		NexposeAssetVulnerability{
@@ -478,10 +478,10 @@ func TestMakeNexposeRequest(t *testing.T) {
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
-				Client:   &http.Client{Transport: mockRT},
-				Host:     clientURL,
-				Username: "username",
-				Password: "password",
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
+				Username:   "username",
+				Password:   "password",
 			}
 
 			body, err := client.makeNexposeRequest(map[string]string{"key1": "value1"}, "this", "is", "my", "path")

@@ -8,6 +8,7 @@ import (
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHydrator(t *testing.T) {
@@ -75,7 +76,8 @@ func TestHydrator(t *testing.T) {
 	}
 }
 
-func TestNewHydrator(t *testing.T) {
-	newHydrator := NewHydrator(&NexposeClient{})
-	assert.IsType(t, newHydrator, &Hydrator{})
+func TestNewHydratorComponent(t *testing.T) {
+	c := NewHydratorComponent()
+	_, err := c.New(context.Background(), c.Settings())
+	require.NoError(t, err)
 }

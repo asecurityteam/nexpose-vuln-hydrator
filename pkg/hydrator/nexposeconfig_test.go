@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	httpclient "github.com/asecurityteam/component-httpclient"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ func TestName(t *testing.T) {
 }
 
 func TestComponentDefaultConfig(t *testing.T) {
-	component := &NexposeConfigComponent{}
+	component := &NexposeComponent{HTTP: httpclient.NewComponent()}
 	config := component.Settings()
 	assert.Empty(t, config.Host)
 	assert.Empty(t, config.Username)
@@ -22,15 +23,16 @@ func TestComponentDefaultConfig(t *testing.T) {
 }
 
 func TestNexposeClientConfigWithValues(t *testing.T) {
-	nexposeClientComponent := NexposeConfigComponent{}
+	component := &NexposeComponent{HTTP: httpclient.NewComponent()}
 	config := &NexposeConfig{
-		Host:     "http://localhost",
-		Username: "myusername",
-		Password: "mypassword",
-		PageSize: 5,
+		HTTPClient: component.HTTP.Settings(),
+		Host:       "http://localhost",
+		Username:   "myusername",
+		Password:   "mypassword",
+		PageSize:   5,
 	}
-	nexposeClient, err := nexposeClientComponent.New(context.Background(), config)
-
+	nexposeClient, err := component.New(context.Background(), config)
+	assert.NotEmpty(t, nexposeClient.HTTPClient)
 	assert.Equal(t, "http://localhost", nexposeClient.Host.String())
 	assert.Equal(t, "myusername", nexposeClient.Username)
 	assert.Equal(t, "mypassword", nexposeClient.Password)
@@ -39,9 +41,12 @@ func TestNexposeClientConfigWithValues(t *testing.T) {
 }
 
 func TestNexposeClientConfigWithInvalidHost(t *testing.T) {
-	nexposeClientComponent := NexposeConfigComponent{}
-	config := &NexposeConfig{Host: "~!@#$%^&*()_+:?><!@#$%^&*())_:"}
-	_, err := nexposeClientComponent.New(context.Background(), config)
+	component := &NexposeComponent{HTTP: httpclient.NewComponent()}
+	config := &NexposeConfig{
+		HTTPClient: component.HTTP.Settings(),
+		Host:       "~!@#$%^&*()_+:?><!@#$%^&*())_:",
+	}
+	_, err := component.New(context.Background(), config)
 
 	assert.Error(t, err)
 }

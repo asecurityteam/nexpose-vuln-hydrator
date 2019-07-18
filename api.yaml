@@ -6,10 +6,7 @@ x-runtime:
     level: "INFO"
     output: "STDOUT"
   stats:
-    output: "DATADOG"
-    datadog:
-      address: "statsd:8125"
-      flushinterval: "10s"
+    output: "NULL"
   signals:
     installed:
       - "OS"

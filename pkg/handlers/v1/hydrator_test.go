@@ -15,15 +15,21 @@ func TestHandleSuccess(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockHydrator := NewMockHydrator(ctrl)
+	mockProducer := NewMockProducer(ctrl)
 	mockHydrator.EXPECT().HydrateVulnerabilities(gomock.Any(), gomock.Any()).Return(domain.AssetVulnerabilityDetails{}, nil)
+	mockProducer.EXPECT().Produce(context.Background(), domainAssetVulnerabilityDetailsToEvent(domain.AssetVulnerabilityDetails{})).Return(nil, nil)
 
-	handler := &HydrationHandler{Hydrator: mockHydrator, LogFn: testLogFn}
-	_, err := handler.Handle(context.Background(), AssetEvent{})
+	handler := &HydrationHandler{
+		Hydrator: mockHydrator,
+		Producer: mockProducer,
+		LogFn:    testLogFn,
+	}
+	err := handler.Handle(context.Background(), AssetEvent{})
 
 	assert.Nil(t, err)
 }
 
-func TestHandleError(t *testing.T) {
+func TestHandleHydratorError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -31,7 +37,27 @@ func TestHandleError(t *testing.T) {
 	mockHydrator.EXPECT().HydrateVulnerabilities(gomock.Any(), gomock.Any()).Return(domain.AssetVulnerabilityDetails{}, fmt.Errorf("error"))
 
 	handler := &HydrationHandler{Hydrator: mockHydrator, LogFn: testLogFn}
-	_, err := handler.Handle(context.Background(), AssetEvent{})
+	err := handler.Handle(context.Background(), AssetEvent{})
+
+	assert.NotNil(t, err)
+}
+
+func TestHandleProducerError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockHydrator := NewMockHydrator(ctrl)
+	mockProducer := NewMockProducer(ctrl)
+
+	mockHydrator.EXPECT().HydrateVulnerabilities(gomock.Any(), gomock.Any()).Return(domain.AssetVulnerabilityDetails{}, nil)
+	mockProducer.EXPECT().Produce(context.Background(), domainAssetVulnerabilityDetailsToEvent(domain.AssetVulnerabilityDetails{})).Return(nil, fmt.Errorf("error"))
+
+	handler := &HydrationHandler{
+		Hydrator: mockHydrator,
+		Producer: mockProducer,
+		LogFn:    testLogFn,
+	}
+	err := handler.Handle(context.Background(), AssetEvent{})
 
 	assert.NotNil(t, err)
 }

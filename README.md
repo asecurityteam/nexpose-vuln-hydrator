@@ -9,6 +9,8 @@
     - [Overview](#overview)
     - [Quick Start](#quick-start)
     - [Configuration](#configuration)
+        - [Logging](#logging)
+        - [Stats](#stats)
     - [Status](#status)
     - [Contributing](#contributing)
         - [Building And Testing](#building-and-testing)
@@ -21,12 +23,90 @@
 <a id="markdown-overview" name="overview"></a>
 ## Overview
 
-Nexpose Vulnerability Hydrator consumes Asset Scan events and hydrates the payload with vulnerability details.
+Nexpose Vulnerability Hydrator consumes Asset events (that may be produced by [Nexpose Asset Producer](https://github.com/asecurityteam/nexpose-asset-producer)) 
+and hydrates them with vulnerability details and possible solutions for those vulnerabilities, which we get from 
+querying Nexpose. Once the asset is hydrated, it gets published to SQS via an SNS topic for the next service 
+to consume. (See [Nexpose Vulnerability Filter](https://github.com/asecurityteam/nexpose-vuln-filter) for a service that 
+consumes these hydrated events)
+
+In order to get the vulnerabilities and solutions for the assets, we call the your Nexpose instance's API with the asset ID at
+[/api/3/assets/{id}/vulnerabilities](https://help.rapid7.com/insightvm/en-us/api/index.html#operation/getAssetServiceVulnerabilities)
+to get the vulnerabilites for the asset, then call [/api/3/vulnerabilities/{id}](https://help.rapid7.com/insightvm/en-us/api/index.html#operation/getVulnerability)
+to get the details each specific vulnerability, [/api/3/vulnerabilities/{id}/solutions](https://help.rapid7.com/insightvm/en-us/api/index.html#operation/getVulnerabilitySolutions) 
+to get the solutions for the vulnerability, and [/api/3/solutions/{id}](https://help.rapid7.com/insightvm/en-us/api/index.html#operation/getSolution)
+to get the details for each solution. 
+
+<a id="markdown-quick-start" name="quick-start"></a>
+## Quick Start
+
+Install docker and docker-compose.
+
+The app can be run locally by running `make run`.
+
+This will run `docker-compose` for the serverfull project
+as well as the supplied serverfull-gateway configuration.
+The sample configration provided assumes there will be a stats
+collector running. To disable this, remove the stats configuration
+lines from the server configuration and the serverfull-gateway
+configuration.
+
+The app should now be running on port 8080.
+
+`curl -vX POST "http://localhost:8080" -H "Content-Type:application/json" -d @pkg/handlers/v1/testdata/config.valid.json`
 
 <a id="markdown-configuration" name="configuration"></a>
 ## Configuration
 
-<Details of how to actually work with the project>
+Images of this project are built, and hosted on [DockerHub](https://cloud.docker.com/u/asecurityteam/repository/docker/asecurityteam/awsconfig-filterd). The system is configured using environment variables. The following are all of the configuration options for the system:
+
+```bash
+# (bool) Use the Lambda SDK to start the system.
+VULNHYDRATOR_LAMBDAMODE="false"
+# (string)
+VULNHYDRATOR_PRODUCER_TYPE="BENTHOS"
+# (string) The YAML or JSON text of a Benthos configuration.
+VULNHYDRATOR_PRODUCER_BENTHOS_YAML=""
+# (string) The URL to POST.
+VULNHYDRATOR_PRODUCER_POST_ENDPOINT=""
+# (string) The type of HTTP client. Choices are SMART and DEFAULT.
+VULNHYDRATOR_PRODUCER_POST_HTTPCLIENT_TYPE="DEFAULT"
+# (string) The full OpenAPI specification with transportd extensions.
+VULNHYDRATOR_PRODUCER_POST_HTTPCLIENT_SMART_OPENAPI=""
+# (string) The Nexpose host where your Nexpose instance lives (ex. https://nexpose.my-company.com)
+VULNHYDRATOR_HYDRATOR_NEXPOSE_HOST: ""
+# (string) The Nexpose username used to login to your nexpose instance.
+VULNHYDRATOR_HYDRATOR_NEXPOSE_USERNAME: ""
+# (string) The Nexpose password used to login to your nexpose instance.
+VULNHYDRATOR_HYDRATOR_NEXPOSE_PASSWORD: ""
+# (int) The number of records per page to retrieve.
+VULNHYDRATOR_HYDRATOR_NEXPOSE_PAGESIZE: ""
+```
+
+For those who do not have access to AWS Lambda, you can run your own configuration by composing this
+image with your own custom configuration of serverfull-gateway.
+
+<a id="markdown-logging" name="logging"></a>
+### Logging
+
+This project makes use of [logevent](https://github.com/asecurityteam/logevent) which provides structured logging
+using Go structs and tags. By default the project will set a logger value in the context for each request. The handler
+uses the `LogFn` function defined in `pkg/domain/alias.go` to extract the logger instance from the context.
+
+The built in logger can be configured through the serverfull runtime [configuration](https://github.com/asecurityteam/serverfull#configuration).
+
+<a id="markdown-stats" name="stats"></a>
+### Stats
+
+This project uses [xstats](https://github.com/rs/xstats) as its underlying stats library. By default the project will
+set a stat client value in the context for each request. The handler uses the `StatFn` function defined in
+`pkg/domain/alias.go` to extract the logger instance from the context.
+
+The built in stats client can be configured through the serverfull runtime [configuration](https://github.com/asecurityteam/serverfull#configuration).
+
+Additional resources:
+
+* [serverfull](https://github.com/asecurityteam/serverfull)
+* [serverfull-gateway](https://github.com/asecurityteam/serverfull-gateway)
 
 <a id="markdown-status" name="status"></a>
 ## Status
@@ -36,6 +116,8 @@ and the interfaces are subject to change.
 
 <a id="markdown-contributing" name="contributing"></a>
 ## Contributing
+
+If you are interested in contributing to the project, feel free to open an issue or PR.
 
 <a id="markdown-building-and-testing" name="building-and-testing"></a>
 ### Building And Testing

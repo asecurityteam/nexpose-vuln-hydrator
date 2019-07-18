@@ -18,7 +18,7 @@ type config struct {
 }
 
 func (*config) Name() string {
-	return "nexposevulnhydrator"
+	return "vulnhydrator"
 }
 
 type component struct {

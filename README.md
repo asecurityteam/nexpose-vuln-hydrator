@@ -1,4 +1,4 @@
-<a id="markdown-Nexpose Vulnerability Hydrator" name="Nexpose Vulnerability Hydrator"></a>
+<a id="markdown-Nexpose-Vulnerability-Hydrator" name="Nexpose Vulnerability Hydrator"></a>
 # Nexpose Vulnerability Hydrator
 
 <https://github.com/asecurityteam/nexpose-vuln-hydrator>
@@ -52,7 +52,6 @@ configuration.
 
 The app should now be running on port 8080.
 
-`curl -vX POST "http://localhost:8080" -H "Content-Type:application/json" -d @pkg/handlers/v1/testdata/config.valid.json`
 
 <a id="markdown-configuration" name="configuration"></a>
 ## Configuration

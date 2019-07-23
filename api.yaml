@@ -58,7 +58,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Asset'
+              anyOf:
+                # an asset needs either a hostname OR an IP (or both)
+                - $ref: '#/components/schemas/AssetWithIP'
+                - $ref: '#/components/schemas/AssetWithHostname'
       responses:
         "200":
           description: "Success"
@@ -82,7 +85,31 @@ paths:
           error: '{"status": 500, "bodyPassthrough": true}'
 components:
   schemas:
-    Asset:
+    AssetWithHostname:
+      type: object
+      required:
+        - id
+        - hostname
+        - lastScanned
+      properties:
+        hostname:
+          type: string
+          example: corporate-workstation-1102DC.acme.com
+          description: The primary host name (local or FQDN) of the asset.
+        id:
+          type: integer
+          format: int64
+          example: 282
+          description: The identifier of the asset.
+        ip:
+          type: string
+          example: 182.34.74.202
+          description: The primary IPv4 or IPv6 address of the asset.
+        lastScanned:
+          type: string
+          format: date-time
+          description: The last time the asset was scanned.
+    AssetWithIP:
       type: object
       required:
         - id

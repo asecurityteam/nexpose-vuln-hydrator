@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"os"
 
 	producer "github.com/asecurityteam/component-producer"
@@ -49,6 +51,16 @@ func main() {
 	}
 	runner := new(func(context.Context, settings.Source) error)
 	cmp := newComponent()
+
+	fs := flag.NewFlagSet("nexpose-vuln-hydrator", flag.ContinueOnError)
+	fs.Usage = func() {}
+	if err = fs.Parse(os.Args[1:]); err == flag.ErrHelp {
+		g, _ := settings.GroupFromComponent(cmp)
+		fmt.Println("Usage: ")
+		fmt.Println(settings.ExampleEnvGroups([]settings.Group{g}))
+		return
+	}
+
 	err = settings.NewComponent(ctx, source, cmp, runner)
 	if err != nil {
 		panic(err.Error())

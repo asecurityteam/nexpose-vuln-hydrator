@@ -11,15 +11,15 @@ type HydratorConfig struct {
 	Nexpose *NexposeConfig
 }
 
+// Name is used by the settings library and will add a "HYDRATOR_"
+// prefix to all app environment variables
+func (*HydratorConfig) Name() string {
+	return "hydrator"
+}
+
 // HydratorComponent contains other components that need to be configured.
 type HydratorComponent struct {
 	Nexpose *NexposeComponent
-}
-
-// Name is used by the settings library and will add a "HYDRATOR_"
-// prefix to all app environment variables
-func (*HydratorComponent) Name() string {
-	return "hydrator"
 }
 
 // NewHydratorComponent generates and returns a HydratorComponent

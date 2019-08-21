@@ -13,8 +13,6 @@ import (
 type NexposeConfig struct {
 	HTTPClient *httpclient.Config `description:"The HTTP client config from github.com/asecurityteam/component-httpclient."`
 	Host       string             `description:"The scheme and host of a Nexpose instance."`
-	Username   string             `description:"The username used to login to the Nexpose instance at the given host."`
-	Password   string             `description:"The password for the corresponding username."`
 	PageSize   int                `description:"The number of assets that should be returned from the Nexpose API at one time."`
 }
 
@@ -59,8 +57,6 @@ func (c *NexposeComponent) New(ctx context.Context, config *NexposeConfig) (*Nex
 	return &NexposeClient{
 		HTTPClient: &http.Client{Transport: rt},
 		Host:       host,
-		Username:   config.Username,
-		Password:   config.Password,
 		PageSize:   config.PageSize,
 	}, nil
 }

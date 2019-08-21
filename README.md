@@ -73,10 +73,6 @@ VULNHYDRATOR_PRODUCER_POST_HTTPCLIENT_TYPE="DEFAULT"
 VULNHYDRATOR_PRODUCER_POST_HTTPCLIENT_SMART_OPENAPI=""
 # (string) The Nexpose host where your Nexpose instance lives (ex. https://nexpose.my-company.com)
 VULNHYDRATOR_HYDRATOR_NEXPOSE_HOST: ""
-# (string) The Nexpose username used to login to your nexpose instance.
-VULNHYDRATOR_HYDRATOR_NEXPOSE_USERNAME: ""
-# (string) The Nexpose password used to login to your nexpose instance.
-VULNHYDRATOR_HYDRATOR_NEXPOSE_PASSWORD: ""
 # (int) The number of assets that should be returned from the Nexpose API at one time.
 VULNHYDRATOR_HYDRATOR_NEXPOSE_PAGESIZE="100"
 # (string) The type of HTTP client. Choices are SMART and DEFAULT.
@@ -115,6 +111,14 @@ Additional resources:
 
 * [serverfull](https://github.com/asecurityteam/serverfull)
 * [serverfull-gateway](https://github.com/asecurityteam/serverfull-gateway)
+
+### Environment Variables
+Here are the environment variables that need to be set
+
+| Name                  | Required | Description                                                                          | Example                       |
+|-----------------------|:--------:|--------------------------------------------------------------------------------------|-------------------------------|
+| NEXPOSE_API_USERNAME  |   Yes    | Username to access the Nexpose instance                                              | myusername                    |
+| NEXPOSE_API_PASSWORD  |   Yes    | Password that corresponds to the provided username                                   | mypassword                    |
 
 <a id="markdown-status" name="status"></a>
 ## Status

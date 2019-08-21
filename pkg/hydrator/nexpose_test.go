@@ -474,14 +474,12 @@ func TestMakeNexposeRequest(t *testing.T) {
 			defer ctrl.Finish()
 			mockRT := NewMockRoundTripper(ctrl)
 			mockRT.EXPECT().RoundTrip(
-				&requestMatcher{URL: "http://nexpose.com/this/is/my/path?key1=value1", Headers: []string{"Authorization"}},
+				&requestMatcher{URL: "http://nexpose.com/this/is/my/path?key1=value1"},
 			).Return(test.response, test.reqError)
 			clientURL, _ := url.Parse(nexposeHost)
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
-				Username:   "username",
-				Password:   "password",
 			}
 
 			body, err := client.makeNexposeRequest(map[string]string{"key1": "value1"}, "this", "is", "my", "path")

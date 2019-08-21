@@ -165,8 +165,6 @@ type VulnerabilityDetailsFetcher interface {
 type NexposeClient struct {
 	HTTPClient *http.Client
 	Host       *url.URL
-	Username   string
-	Password   string
 	PageSize   int
 }
 
@@ -295,7 +293,6 @@ func (n *NexposeClient) makeNexposeRequest(queryParams map[string]string, pathFr
 	}
 	u.RawQuery = q.Encode()
 	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
-	req.SetBasicAuth(n.Username, n.Password)
 	res, err := n.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err

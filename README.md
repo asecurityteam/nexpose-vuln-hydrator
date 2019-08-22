@@ -112,8 +112,9 @@ Additional resources:
 * [serverfull](https://github.com/asecurityteam/serverfull)
 * [serverfull-gateway](https://github.com/asecurityteam/serverfull-gateway)
 
-### Environment Variables
-Here are the environment variables that need to be set
+### Gateway Environment Variables
+Here are some environment variables that need to be set, we recommend using the transportd library to handle authentication on outbound requests to Nexpose
+These environment variables can be named to whatever, however api.yaml(which uses transportd) reflects these names in handling basic authentication
 
 | Name                  | Required | Description                                                                          | Example                       |
 |-----------------------|:--------:|--------------------------------------------------------------------------------------|-------------------------------|

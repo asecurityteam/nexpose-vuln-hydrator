@@ -11,6 +11,7 @@
     - [Configuration](#configuration)
         - [Logging](#logging)
         - [Stats](#stats)
+        - [Authentication](#authentication)
     - [Status](#status)
     - [Contributing](#contributing)
         - [Building And Testing](#building-and-testing)
@@ -112,14 +113,19 @@ Additional resources:
 * [serverfull](https://github.com/asecurityteam/serverfull)
 * [serverfull-gateway](https://github.com/asecurityteam/serverfull-gateway)
 
-### Gateway Environment Variables
-Here are some environment variables that need to be set, we recommend using the transportd library to handle authentication on outbound requests to Nexpose
-These environment variables can be named to whatever, however api.yaml(which uses transportd) reflects these names in handling basic authentication
+<a id="markdown-authentication" name="authentication"></a>
+### Nexpose Authentication
+Because Nexpose requires basic authentication, any http calls to Nexpose must contain a basic authentication header. Therefore, one can manually set a basic
+authentication header in makeNexposeRequest(), within nexpose.go. Alternatively, one can use transportd as a reverse proxy, and use its basic authentication plugin.
 
-| Name                  | Required | Description                                                                          | Example                       |
-|-----------------------|:--------:|--------------------------------------------------------------------------------------|-------------------------------|
-| NEXPOSE_API_USERNAME  |   Yes    | Username to access the Nexpose instance                                              | myusername                    |
-| NEXPOSE_API_PASSWORD  |   Yes    | Password that corresponds to the provided username                                   | mypassword                    |
+In the sample docker-compose file, we can set environment variables to our transportd container, which our api.yaml(which is used by transportd) consumes to add
+basic authentication. These environment variables look like:
+
+
+| Name                  | Description                                                                          | Example                       |
+|-----------------------|--------------------------------------------------------------------------------------|-------------------------------|
+| NEXPOSE_API_USERNAME  | Username to access the Nexpose instance                                              | myusername                    |
+| NEXPOSE_API_PASSWORD  | Password that corresponds to the provided username                                   | mypassword                    |
 
 <a id="markdown-status" name="status"></a>
 ## Status

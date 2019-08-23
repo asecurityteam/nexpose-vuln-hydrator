@@ -8,7 +8,6 @@ import (
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestHydrator(t *testing.T) {
@@ -76,8 +75,47 @@ func TestHydrator(t *testing.T) {
 	}
 }
 
+func TestHydratorConfigName(t *testing.T) {
+	config := HydratorConfig{}
+	assert.Equal(t, "hydrator", config.Name())
+}
+
 func TestNewHydratorComponent(t *testing.T) {
 	c := NewHydratorComponent()
-	_, err := c.New(context.Background(), c.Settings())
-	require.NoError(t, err)
+	type DummyConfig func(c *HydratorComponent) *HydratorConfig
+	tests := []struct {
+		name              string
+		hydratorComponent *HydratorComponent
+		ctx               context.Context
+		config            DummyConfig
+		expectedErr       bool
+	}{
+		{
+			name:              "success",
+			hydratorComponent: NewHydratorComponent(),
+			ctx:               context.Background(),
+			config: DummyConfig(func(c *HydratorComponent) *HydratorConfig {
+				dummyConfig := c.Settings()
+				return dummyConfig
+			}),
+			expectedErr: false,
+		},
+		{
+			name:              "failure on creating Nexpose Component",
+			hydratorComponent: NewHydratorComponent(),
+			ctx:               context.Background(),
+			config: DummyConfig(func(c *HydratorComponent) *HydratorConfig {
+				dummyConfig := c.Settings()
+				dummyConfig.Nexpose.Host = "~!@#$%^&*()_+:?><!@#$%^&*())_:/nexpose"
+				return dummyConfig
+			}),
+			expectedErr: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			_, err := c.New(test.ctx, test.config(test.hydratorComponent))
+			assert.Equal(tt, test.expectedErr, err != nil)
+		})
+	}
 }

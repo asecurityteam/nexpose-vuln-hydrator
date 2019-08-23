@@ -11,6 +11,7 @@
     - [Configuration](#configuration)
         - [Logging](#logging)
         - [Stats](#stats)
+        - [Authentication](#authentication)
     - [Status](#status)
     - [Contributing](#contributing)
         - [Building And Testing](#building-and-testing)
@@ -73,10 +74,6 @@ VULNHYDRATOR_PRODUCER_POST_HTTPCLIENT_TYPE="DEFAULT"
 VULNHYDRATOR_PRODUCER_POST_HTTPCLIENT_SMART_OPENAPI=""
 # (string) The Nexpose host where your Nexpose instance lives (ex. https://nexpose.my-company.com)
 VULNHYDRATOR_HYDRATOR_NEXPOSE_HOST: ""
-# (string) The Nexpose username used to login to your nexpose instance.
-VULNHYDRATOR_HYDRATOR_NEXPOSE_USERNAME: ""
-# (string) The Nexpose password used to login to your nexpose instance.
-VULNHYDRATOR_HYDRATOR_NEXPOSE_PASSWORD: ""
 # (int) The number of assets that should be returned from the Nexpose API at one time.
 VULNHYDRATOR_HYDRATOR_NEXPOSE_PAGESIZE="100"
 # (string) The type of HTTP client. Choices are SMART and DEFAULT.
@@ -115,6 +112,20 @@ Additional resources:
 
 * [serverfull](https://github.com/asecurityteam/serverfull)
 * [serverfull-gateway](https://github.com/asecurityteam/serverfull-gateway)
+
+<a id="markdown-authentication" name="authentication"></a>
+### Nexpose Authentication
+Because Nexpose requires basic authentication, any http calls to Nexpose must contain a basic authentication header. Therefore, one can manually set a basic
+authentication header in makeNexposeRequest(), within nexpose.go. Alternatively, one can use transportd as a reverse proxy, and use its basic authentication plugin.
+
+In the sample docker-compose file, we can set environment variables to our transportd container, which our api.yaml(which is used by transportd) consumes to add
+basic authentication. These environment variables look like:
+
+
+| Name                  | Description                                                                          | Example                       |
+|-----------------------|--------------------------------------------------------------------------------------|-------------------------------|
+| NEXPOSE_API_USERNAME  | Username to access the Nexpose instance                                              | myusername                    |
+| NEXPOSE_API_PASSWORD  | Password that corresponds to the provided username                                   | mypassword                    |
 
 <a id="markdown-status" name="status"></a>
 ## Status

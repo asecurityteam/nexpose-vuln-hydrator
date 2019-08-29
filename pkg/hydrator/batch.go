@@ -104,6 +104,7 @@ func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Conte
 			vulnerabilityDetails.CvssV2Severity = nexposeVulnDetails.CvssV2Severity
 			vulnerabilityDetails.Description = nexposeVulnDetails.Description
 			vulnerabilityDetails.Title = nexposeVulnDetails.Title
+			vulnerabilityDetails.Status = nexposeVulnDetails.Status
 		case err := <-errorChan:
 			cancel()
 			return domain.VulnerabilityDetails{}, err

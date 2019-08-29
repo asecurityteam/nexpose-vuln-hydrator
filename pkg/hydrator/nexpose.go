@@ -28,6 +28,7 @@ type NexposeVulnerability struct {
 	CvssV2Score    float64
 	CvssV2Severity string
 	Description    string
+	Status         string
 	Title          string
 }
 
@@ -120,6 +121,7 @@ type vulnerabilityDetails struct {
 	RiskScore       float32           `json:"riskScore"`
 	Severity        string            `json:"severity"`
 	Title           string            `json:"title"`
+	Status          string            `json:"status"`
 }
 
 type cvss struct {
@@ -209,6 +211,7 @@ func (n *NexposeClient) FetchVulnerabilityDetails(ctx context.Context, vulnID st
 	}
 	return NexposeVulnerability{
 		Title:          vulnDetails.Title,
+		Status:         vulnDetails.Status,
 		Description:    vulnDetails.Description.Text,
 		CvssV2Score:    vulnDetails.CVSS.V2.Score,
 		CvssV2Severity: cvssV2Severity(vulnDetails.CVSS.V2.Score),

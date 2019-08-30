@@ -265,7 +265,7 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			[]response{
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
-						`{"page": {"totalPages": 1, "totalResources": 1}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp"}]}]}`,
+						`{"page": {"totalPages": 1, "totalResources": 1}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp"}], "status": "vulnerable"}]}`,
 					)))},
 					nil,
 				},
@@ -277,6 +277,7 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 					Results: []domain.AssessmentResult{
 						{Port: 443, Protocol: "tcp"},
 					},
+					Status: "vulnerable",
 				},
 			},
 		},
@@ -285,13 +286,13 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			[]response{
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
-						`{"page": {"number": 0, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp"}]}]}`,
+						`{"page": {"number": 0, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp"}], "status": "vulnerable"}]}`,
 					)))},
 					nil,
 				},
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
-						`{"page": {"number": 1, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln2", "results": [{"port": 80, "protocol": "tcp"}]}]}`,
+						`{"page": {"number": 1, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln2", "results": [{"port": 80, "protocol": "tcp"}], "status": "invulnerable"}]}`,
 					)))},
 					nil,
 				},
@@ -303,12 +304,14 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 					Results: []domain.AssessmentResult{
 						{Port: 443, Protocol: "tcp"},
 					},
+					Status: "vulnerable",
 				},
 				{
 					ID: "vuln2",
 					Results: []domain.AssessmentResult{
 						{Port: 80, Protocol: "tcp"},
 					},
+					Status: "invulnerable",
 				},
 			},
 		},
@@ -378,17 +381,32 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 		},
 		{
 			"invalid json error",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`)))},
+			&http.Response{
+				Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`))),
+			},
 			nil,
 			true,
 			nil,
 		},
 		{
 			"success",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"resources": [{"id": "vuln1", "results": [{"port": 80, "protocol": "tcp"}]}]}`)))},
+			&http.Response{
+				Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"resources": [{"id": "vuln1", "results": [{"port": 80, "protocol": "tcp"}], "status": "vulnerable"}]}`))),
+			},
 			nil,
 			false,
-			[]NexposeAssetVulnerability{{ID: "vuln1", Results: []domain.AssessmentResult{{Port: 80, Protocol: "tcp"}}}},
+			[]NexposeAssetVulnerability{
+				{
+					ID: "vuln1",
+					Results: []domain.AssessmentResult{
+						{
+							Port:     80,
+							Protocol: "tcp",
+						},
+					},
+					Status: "vulnerable",
+				},
+			},
 		},
 	}
 
@@ -420,8 +438,18 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 
 func TestAssetVulnToNexposeAssetVuln(t *testing.T) {
 	nexposeResource := resource{
-		ID:      "vulnID",
-		Results: []result{{Port: 443, Protocol: "tcp"}, {Port: 80, Protocol: "tcp"}},
+		ID: "vulnID",
+		Results: []result{
+			{
+				Port:     443,
+				Protocol: "tcp",
+			},
+			{
+				Port:     80,
+				Protocol: "tcp",
+			},
+		},
+		Status: "vulnerable",
 	}
 	nexposeAssetVuln := assetVulnToNexposeAssetVuln(nexposeResource)
 	assert.Equal(
@@ -432,6 +460,7 @@ func TestAssetVulnToNexposeAssetVuln(t *testing.T) {
 				{Port: 443, Protocol: "tcp"},
 				{Port: 80, Protocol: "tcp"},
 			},
+			Status: "vulnerable",
 		},
 		nexposeAssetVuln,
 	)

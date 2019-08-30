@@ -23,15 +23,15 @@ func TestHydrator(t *testing.T) {
 	}{
 		{
 			"success",
-			[]NexposeAssetVulnerability{NexposeAssetVulnerability{ID: "vuln1"}},
+			[]NexposeAssetVulnerability{NexposeAssetVulnerability{ID: "vuln1", Status: "vulnerable"}},
 			nil,
-			[]domain.VulnerabilityDetails{domain.VulnerabilityDetails{ID: "vuln1"}},
+			[]domain.VulnerabilityDetails{domain.VulnerabilityDetails{ID: "vuln1", Status: "vulnerable"}},
 			nil,
 			domain.AssetVulnerabilityDetails{
 				Asset: domain.Asset{
 					ID: assetID,
 				},
-				Vulnerabilities: []domain.VulnerabilityDetails{domain.VulnerabilityDetails{ID: "vuln1"}},
+				Vulnerabilities: []domain.VulnerabilityDetails{domain.VulnerabilityDetails{ID: "vuln1", Status: "vulnerable"}},
 			},
 			false,
 		},

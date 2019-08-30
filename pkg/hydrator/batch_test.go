@@ -65,7 +65,9 @@ func TestHydrateAssetVulnerabilityDetailsFetchError(t *testing.T) {
 		context.Background(),
 		NexposeAssetVulnerability{
 			ID:      "vulnID",
-			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}}},
+			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}},
+			Status:  "vulnerable",
+		},
 	)
 	assert.NotNil(t, err)
 }
@@ -91,7 +93,9 @@ func TestHydrateAssetVulnerabilityVulnSolutionsFetchError(t *testing.T) {
 		context.Background(),
 		NexposeAssetVulnerability{
 			ID:      "vulnID",
-			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}}},
+			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}},
+			Status:  "vulnerable",
+		},
 	)
 	assert.NotNil(t, err)
 }
@@ -118,7 +122,9 @@ func TestHydrateAssetVulnerabilityBatchSolutionsFetchError(t *testing.T) {
 		context.Background(),
 		NexposeAssetVulnerability{
 			ID:      "vulnID",
-			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}}},
+			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}},
+			Status:  "vulnerable",
+		},
 	)
 	assert.NotNil(t, err)
 }
@@ -143,6 +149,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 				CvssV2Severity: "Medium",
 				Description:    "medium severity vuln",
 				Title:          "Vulnerability",
+				Status:         "invulnerable",
 			},
 			nil,
 			[]string{"solution1", "solution2"},
@@ -159,6 +166,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 				Description:    "medium severity vuln",
 				Title:          "Vulnerability",
 				Solutions:      []string{"solution1-steps", "solution2-steps"},
+				Status:         "invulnerable",
 			},
 			false,
 		},
@@ -240,7 +248,9 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 				context.Background(),
 				NexposeAssetVulnerability{
 					ID:      vulnID,
-					Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}}},
+					Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}},
+					Status:  "invulnerable",
+				},
 			)
 			if test.expectedErr {
 				assert.NotNil(tt, err)

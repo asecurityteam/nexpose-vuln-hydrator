@@ -21,6 +21,7 @@ const (
 type NexposeAssetVulnerability struct {
 	ID      string
 	Results []domain.AssessmentResult
+	Status  string
 }
 
 // NexposeVulnerability represents the relevant fields from a Nexpose Vulnerability
@@ -121,7 +122,6 @@ type vulnerabilityDetails struct {
 	RiskScore       float32           `json:"riskScore"`
 	Severity        string            `json:"severity"`
 	Title           string            `json:"title"`
-	Status          string            `json:"status"`
 }
 
 type cvss struct {
@@ -211,7 +211,6 @@ func (n *NexposeClient) FetchVulnerabilityDetails(ctx context.Context, vulnID st
 	}
 	return NexposeVulnerability{
 		Title:          vulnDetails.Title,
-		Status:         vulnDetails.Status,
 		Description:    vulnDetails.Description.Text,
 		CvssV2Score:    vulnDetails.CVSS.V2.Score,
 		CvssV2Severity: cvssV2Severity(vulnDetails.CVSS.V2.Score),
@@ -320,6 +319,7 @@ func assetVulnToNexposeAssetVuln(resource resource) NexposeAssetVulnerability {
 	return NexposeAssetVulnerability{
 		ID:      resource.ID,
 		Results: results,
+		Status:  resource.Status,
 	}
 }
 

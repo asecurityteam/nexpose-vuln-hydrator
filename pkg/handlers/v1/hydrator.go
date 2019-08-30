@@ -39,6 +39,7 @@ type AssetVulnerabilityDetails struct {
 	Description    string             `json:"description"`
 	Title          string             `json:"title"`
 	Solutions      []string           `json:"solutions"`
+	Status         string             `json:"status"`
 }
 
 // AssessmentResult contains information about the port/protocol the vulnerability was discovered on
@@ -76,6 +77,7 @@ func domainAssetVulnerabilityDetailsToEvent(a domain.AssetVulnerabilityDetails) 
 			Description:    vuln.Description,
 			Title:          vuln.Title,
 			Solutions:      vuln.Solutions,
+			Status:         vuln.Status,
 		}
 	}
 	return AssetVulnerabilitiesEvent{

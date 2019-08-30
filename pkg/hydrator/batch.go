@@ -93,6 +93,7 @@ func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Conte
 	vulnerabilityDetails := domain.VulnerabilityDetails{
 		ID:      assetVulnerability.ID,
 		Results: assetVulnerability.Results,
+		Status:  assetVulnerability.Status,
 	}
 
 	for i := 0; i < 2; i = i + 1 {

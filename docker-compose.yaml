@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   app:
     build:
@@ -28,6 +28,7 @@ services:
       VULNHYDRATOR_HYDRATOR_NEXPOSE_HOST: ""
       VULNHYDRATOR_HYDRATOR_NEXPOSE_PAGESIZE: ""
       VULNHYDRATOR_LAMBDAMODE: "false"
+      VULNHYDRATOR_PRODUCERSIZELIMIT: 262144 # 256KiB in bytes
   gateway:
     build:
       context: .
@@ -37,4 +38,3 @@ services:
     environment:
       NEXPOSE_API_USERNAME:
       NEXPOSE_API_PASSWORD:
-

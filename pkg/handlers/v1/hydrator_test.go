@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/producer"
+
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -60,6 +62,27 @@ func TestHandleProducerError(t *testing.T) {
 	err := handler.Handle(context.Background(), AssetEvent{})
 
 	assert.NotNil(t, err)
+}
+
+func TestHandleProducerErrSizeLimitExceeded(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockHydrator := NewMockHydrator(ctrl)
+	mockProducer := NewMockProducer(ctrl)
+	mockLogger := NewMockLogger(ctrl)
+
+	mockHydrator.EXPECT().HydrateVulnerabilities(gomock.Any(), gomock.Any()).Return(domain.AssetVulnerabilityDetails{}, nil)
+	mockProducer.EXPECT().Produce(context.Background(), domainAssetVulnerabilityDetailsToEvent(domain.AssetVulnerabilityDetails{})).Return(nil, producer.ErrSizeLimitExceeded{})
+	mockLogger.EXPECT().Error(gomock.Any())
+
+	handler := &HydrationHandler{
+		Hydrator: mockHydrator,
+		Producer: mockProducer,
+		LogFn:    func(context.Context) domain.Logger { return mockLogger },
+	}
+	err := handler.Handle(context.Background(), AssetEvent{})
+	assert.Nil(t, err)
 }
 
 func TestDomainAssetVulnerabilityDetailsToEvent(t *testing.T) {

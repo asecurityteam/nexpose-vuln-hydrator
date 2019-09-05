@@ -65,8 +65,6 @@ github.com/asecurityteam/component-httpclient v0.2.0 h1:eyJfnF0CFckP+XfVLQ7A8M6d
 github.com/asecurityteam/component-httpclient v0.2.0/go.mod h1:9eGX2jZH6xZetUErDa5V6TCBkAkMPT/7QpWgfALrgGE=
 github.com/asecurityteam/component-log v0.1.0 h1:jyktrvq0kMfbwUsMA6GGj9jgmkkGIciC8UQnrr0GkG0=
 github.com/asecurityteam/component-log v0.1.0/go.mod h1:IkUEj6i4ZFtneNAuVV7Vne8GoMA3c6wrWbao/zJyF1s=
-github.com/asecurityteam/component-producer v0.4.1 h1:ViRb5N44ZgZR8nQ/vAXUmxH/+ejWKTA30gHeHhFi5HE=
-github.com/asecurityteam/component-producer v0.4.1/go.mod h1:iP2zGydQN88lPeddddPjsXlXyErdsQkH3hTtxxVIrsE=
 github.com/asecurityteam/component-producer v0.5.0 h1:teSWzuV1sOXQ6hgdy5GuYTjNsduPJGdSLXuYR5mlLYI=
 github.com/asecurityteam/component-producer v0.5.0/go.mod h1:Ak8aWWCvoRehE4MrJt5cTglRktQWXiTV0gXNuB95A1I=
 github.com/asecurityteam/component-signals v0.1.0 h1:aB/RxnOJmpqv4VYBGN0O1z4Ygul9BoqaF8BZ7Oj07Mg=
@@ -84,8 +82,6 @@ github.com/asecurityteam/runhttp v0.2.0 h1:guvLZ5cGR2g+XKUuyTGf7e2Myx/F3TbQITUHX
 github.com/asecurityteam/runhttp v0.2.0/go.mod h1:13Zb/7m5FQVu1gHjt+YDse6aqfJ5LuC79u8xjM64jrI=
 github.com/asecurityteam/runhttp v0.3.0 h1:kVrx2RhneswdwTZyCsNMJLfVfqNnT3LCORh4rY2HtqE=
 github.com/asecurityteam/runhttp v0.3.0/go.mod h1:AQv7kF4vXrd8ih9Ebh9xL0cAUrtdF2irmWSsBqinf0c=
-github.com/asecurityteam/serverfull v0.4.0 h1:7PPrzjpS2h8hZvt572BhKyAnqETrtqfWSAsWAdA8q9c=
-github.com/asecurityteam/serverfull v0.4.0/go.mod h1:PHStbkLUDG0ndv/B97RtPZOKhjB14vY1S4zsl2e4+lw=
 github.com/asecurityteam/serverfull v0.5.0 h1:6aix016JLJam5ke0og/yKKwhftjiOb/0d2y2ZfdHytc=
 github.com/asecurityteam/serverfull v0.5.0/go.mod h1:aFxk6acJV8T/2FVNSz/CMkW0VK5TwuijTAS4TRgD8k8=
 github.com/asecurityteam/settings v0.1.0 h1:W5CA/x0gby2Ilo6zV0GQVqgDdMX7AvcH8lMbrS718Io=
@@ -95,8 +91,6 @@ github.com/asecurityteam/settings v0.3.0/go.mod h1:frhlF5kT7WvdiRX3eQlCOjSppbYUf
 github.com/asecurityteam/transport v0.0.0-20190225122138-b848ebf618ee h1:pcVkgdO6BYvnOX/mJLDogdPnMq0XaEpJLtsOhHUiZKA=
 github.com/asecurityteam/transport v0.0.0-20190225122138-b848ebf618ee/go.mod h1:0OVTikRn0uMRQsFsslN4ozUaD5YaRPUpqHTBzTsOtaM=
 github.com/asecurityteam/transportd v0.3.0/go.mod h1:4X8x+TzBC+9/ct4jEwbfl9QaAArLnEkfmjV6DT9l9kw=
-github.com/asecurityteam/transportd v0.3.1 h1:EPetKIjZwZncvQjmKXbrBpZ1pWPgAsZdOAgnHXG4BsU=
-github.com/asecurityteam/transportd v0.3.1/go.mod h1:4X8x+TzBC+9/ct4jEwbfl9QaAArLnEkfmjV6DT9l9kw=
 github.com/asecurityteam/transportd v0.3.2 h1:2W1DkhTI2+iWhKx8UizuJbnE8/GYRLJQW/LcxJsT764=
 github.com/asecurityteam/transportd v0.3.2/go.mod h1:4X8x+TzBC+9/ct4jEwbfl9QaAArLnEkfmjV6DT9l9kw=
 github.com/aws/aws-lambda-go v1.10.0/go.mod h1:zUsUQhAUjYzR8AuduJPCfhBuKWUaDbQiPOG+ouzmE1A=

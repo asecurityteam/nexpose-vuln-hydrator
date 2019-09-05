@@ -2,7 +2,8 @@ package producer
 
 import (
 	"context"
-	"encoding/binary"
+	"encoding/json"
+	"fmt"
 
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 )
@@ -17,10 +18,13 @@ type SizeLimitProducer struct {
 // Produce checks the size of an event, and returns an error if it exceeds the configured limit.
 // Otherwise, it passes the event through to the wrapped producer.
 func (p *SizeLimitProducer) Produce(ctx context.Context, event interface{}) (interface{}, error) {
-	size := binary.Size(event)
-	if size > p.SizeLimit {
+	b, e := json.Marshal(event)
+	if e != nil {
+		return nil, fmt.Errorf("failed to unmarshal event: %s", e)
+	}
+	if len(b) > p.SizeLimit {
 		return nil, ErrSizeLimitExceeded{
-			Size:  size,
+			Size:  len(b),
 			Limit: p.SizeLimit,
 		}
 	}

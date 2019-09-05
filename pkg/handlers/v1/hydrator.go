@@ -69,7 +69,6 @@ func (h *HydrationHandler) Handle(ctx context.Context, evt AssetEvent) error {
 			Hostname:    assetVulnEvent.Hostname,
 			IP:          assetVulnEvent.IP,
 		})
-		return nil
 	}
 	return err
 }

@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/producer"
-
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
+	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/producer"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -82,7 +81,7 @@ func TestHandleProducerErrSizeLimitExceeded(t *testing.T) {
 		LogFn:    func(context.Context) domain.Logger { return mockLogger },
 	}
 	err := handler.Handle(context.Background(), AssetEvent{})
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 }
 
 func TestDomainAssetVulnerabilityDetailsToEvent(t *testing.T) {

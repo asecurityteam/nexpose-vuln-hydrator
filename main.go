@@ -6,18 +6,21 @@ import (
 	"fmt"
 	"os"
 
-	producer "github.com/asecurityteam/component-producer"
+	cmpproducer "github.com/asecurityteam/component-producer"
+	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 	v1 "github.com/asecurityteam/nexpose-vuln-hydrator/pkg/handlers/v1"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/hydrator"
+	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/producer"
 	"github.com/asecurityteam/runhttp"
 	"github.com/asecurityteam/serverfull"
 	"github.com/asecurityteam/settings"
 )
 
 type config struct {
-	Producer   *producer.Config
-	Hydrator   *hydrator.HydratorConfig
-	LambdaMode bool `description:"Use the Lambda SDK to start the system."`
+	Producer          *cmpproducer.Config
+	Hydrator          *hydrator.HydratorConfig
+	LambdaMode        bool `description:"Use the Lambda SDK to start the system."`
+	ProducerSizeLimit int  `description:"Apply a size limit (in bytes) to the events produced by this system."`
 }
 
 func (*config) Name() string {
@@ -25,13 +28,13 @@ func (*config) Name() string {
 }
 
 type component struct {
-	Producer *producer.Component
+	Producer *cmpproducer.Component
 	Hydrator *hydrator.HydratorComponent
 }
 
 func newComponent() *component {
 	return &component{
-		Producer: producer.NewComponent(),
+		Producer: cmpproducer.NewComponent(),
 		Hydrator: hydrator.NewHydratorComponent(),
 	}
 }
@@ -77,11 +80,19 @@ func (c *component) New(ctx context.Context, conf *config) (func(context.Context
 	if err != nil {
 		return nil, err
 	}
-	p, err := c.Producer.New(ctx, conf.Producer)
+
+	var p domain.Producer
+	p, err = c.Producer.New(ctx, conf.Producer)
 	if err != nil {
 		return nil, err
 	}
 
+	if conf.ProducerSizeLimit > 0 {
+		p = &producer.SizeLimitProducer{
+			Wrapped:   p,
+			SizeLimit: conf.ProducerSizeLimit,
+		}
+	}
 	hydrationHandler := &v1.HydrationHandler{
 		Hydrator: assetHydrator,
 		Producer: p,

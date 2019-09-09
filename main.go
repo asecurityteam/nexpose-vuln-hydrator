@@ -11,7 +11,6 @@ import (
 	v1 "github.com/asecurityteam/nexpose-vuln-hydrator/pkg/handlers/v1"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/hydrator"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/producer"
-	"github.com/asecurityteam/runhttp"
 	"github.com/asecurityteam/serverfull"
 	"github.com/asecurityteam/settings"
 )

@@ -29,12 +29,18 @@ services:
       VULNHYDRATOR_HYDRATOR_NEXPOSE_PAGESIZE: ""
       VULNHYDRATOR_LAMBDAMODE: "false"
       VULNHYDRATOR_PRODUCERSIZELIMIT: 262144 # 256KiB in bytes
-  gateway:
+  gateway-incoming:
     build:
       context: .
-      dockerfile: gateway.Dockerfile
+      dockerfile: gateway-incoming.Dockerfile
     ports:
       - "8080:8080"
     environment:
       NEXPOSE_API_USERNAME:
       NEXPOSE_API_PASSWORD:
+  gateway-outgoing:
+    build:
+      context: .
+      dockerfile: gateway-outgoing.Dockerfile
+    ports:
+      - "8082:8082"

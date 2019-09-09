@@ -10,6 +10,9 @@ type Logger = runhttp.Logger
 // LogFn is the recommended way to extract a logger from the context.
 type LogFn = runhttp.LogFn
 
+// LoggerFromContext is a concrete implementation of the LogFn interface.
+var LoggerFromContext LogFn = runhttp.LoggerFromContext
+
 // Stat is the project metrics client interface.
 type Stat = runhttp.Stat
 

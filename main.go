@@ -96,7 +96,7 @@ func (c *component) New(ctx context.Context, conf *config) (func(context.Context
 	hydrationHandler := &v1.HydrationHandler{
 		Hydrator: assetHydrator,
 		Producer: p,
-		LogFn:    runhttp.LoggerFromContext,
+		LogFn:    domain.LoggerFromContext,
 	}
 	handlers := map[string]serverfull.Function{
 		"hydrate": serverfull.NewFunction(hydrationHandler.Handle),

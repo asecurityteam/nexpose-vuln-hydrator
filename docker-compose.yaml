@@ -35,12 +35,13 @@ services:
       dockerfile: gateway-incoming.Dockerfile
     ports:
       - "8080:8080"
-    environment:
-      NEXPOSE_API_USERNAME:
-      NEXPOSE_API_PASSWORD:
   gateway-outgoing:
     build:
       context: .
       dockerfile: gateway-outgoing.Dockerfile
     ports:
       - "8082:8082"
+    environment:
+      NEXPOSE_API_USERNAME:
+      NEXPOSE_API_PASSWORD:
+      NEXPOSE_API_HOST:

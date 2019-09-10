@@ -11,7 +11,6 @@ import (
 	v1 "github.com/asecurityteam/nexpose-vuln-hydrator/pkg/handlers/v1"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/hydrator"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/producer"
-	"github.com/asecurityteam/runhttp"
 	"github.com/asecurityteam/serverfull"
 	"github.com/asecurityteam/settings"
 )
@@ -96,7 +95,7 @@ func (c *component) New(ctx context.Context, conf *config) (func(context.Context
 	hydrationHandler := &v1.HydrationHandler{
 		Hydrator: assetHydrator,
 		Producer: p,
-		LogFn:    runhttp.LoggerFromContext,
+		LogFn:    domain.LoggerFromContext,
 	}
 	handlers := map[string]serverfull.Function{
 		"hydrate": serverfull.NewFunction(hydrationHandler.Handle),

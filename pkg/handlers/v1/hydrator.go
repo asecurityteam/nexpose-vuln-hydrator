@@ -43,10 +43,11 @@ type AssetVulnerabilityDetails struct {
 	Status         string             `json:"status"`
 }
 
-// AssessmentResult contains information about the port/protocol the vulnerability was discovered on
+// AssessmentResult contains information about how the vulnerability was discovered
 type AssessmentResult struct {
 	Port     int32  `json:"port"`
 	Protocol string `json:"protocol"`
+	Proof    string `json:"proof"`
 }
 
 // Handle accepts AssetEvents and returns a hydrated asset containing vulnerability information

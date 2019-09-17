@@ -1,6 +1,8 @@
 package domain
 
-import "context"
+import (
+	"context"
+)
 
 // AssetVulnerabilityDetails is a struct containing the asset information with vulnerabilities
 type AssetVulnerabilityDetails struct {
@@ -8,10 +10,11 @@ type AssetVulnerabilityDetails struct {
 	Vulnerabilities []VulnerabilityDetails
 }
 
-// AssessmentResult contains port and protcol information from Nexpose scanning
+// AssessmentResult contains port and protocol, and proof information from Nexpose scanning
 type AssessmentResult struct {
 	Port     int32
 	Protocol string
+	Proof    string
 }
 
 // VulnerabilityDetails contains the vulnerability information

@@ -98,8 +98,8 @@ func TestDomainAssetVulnerabilityDetailsToEvent(t *testing.T) {
 				Title:          "cert expired",
 				Solutions:      []string{"update your cert", "alternate"},
 				Results: []domain.AssessmentResult{
-					domain.AssessmentResult{Port: 443, Protocol: "tcp"},
-					domain.AssessmentResult{Port: 80, Protocol: "tcp"},
+					domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "This is what happened"},
+					domain.AssessmentResult{Port: 80, Protocol: "tcp", Proof: "Some proof"},
 				},
 			},
 			domain.VulnerabilityDetails{
@@ -110,7 +110,7 @@ func TestDomainAssetVulnerabilityDetailsToEvent(t *testing.T) {
 				Title:          "vuln",
 				Solutions:      []string{"alternate"},
 				Results: []domain.AssessmentResult{
-					domain.AssessmentResult{Port: 443, Protocol: "tcp"},
+					domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "Some proof"},
 				},
 			},
 		},

@@ -314,6 +314,7 @@ func assetVulnToNexposeAssetVuln(resource resource) NexposeAssetVulnerability {
 		results = append(results, domain.AssessmentResult{
 			Port:     result.Port,
 			Protocol: result.Protocol,
+			Proof:    result.Proof,
 		})
 	}
 	return NexposeAssetVulnerability{

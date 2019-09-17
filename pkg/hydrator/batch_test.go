@@ -65,7 +65,7 @@ func TestHydrateAssetVulnerabilityDetailsFetchError(t *testing.T) {
 		context.Background(),
 		NexposeAssetVulnerability{
 			ID:      "vulnID",
-			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}},
+			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "Some proof"}},
 			Status:  "vulnerable",
 		},
 	)
@@ -93,7 +93,7 @@ func TestHydrateAssetVulnerabilityVulnSolutionsFetchError(t *testing.T) {
 		context.Background(),
 		NexposeAssetVulnerability{
 			ID:      "vulnID",
-			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}},
+			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "Some proof"}},
 			Status:  "vulnerable",
 		},
 	)
@@ -122,7 +122,7 @@ func TestHydrateAssetVulnerabilityBatchSolutionsFetchError(t *testing.T) {
 		context.Background(),
 		NexposeAssetVulnerability{
 			ID:      "vulnID",
-			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}},
+			Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "Some proof"}},
 			Status:  "vulnerable",
 		},
 	)
@@ -159,7 +159,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 			domain.VulnerabilityDetails{
 				ID: "vulnID",
 				Results: []domain.AssessmentResult{
-					domain.AssessmentResult{Port: 443, Protocol: "tcp"},
+					domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "Some proof"},
 				},
 				CvssV2Score:    6.5,
 				CvssV2Severity: "Medium",
@@ -248,7 +248,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 				context.Background(),
 				NexposeAssetVulnerability{
 					ID:      vulnID,
-					Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp"}},
+					Results: []domain.AssessmentResult{domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "Some proof"}},
 					Status:  "invulnerable",
 				},
 			)

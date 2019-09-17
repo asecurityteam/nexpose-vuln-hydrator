@@ -265,7 +265,7 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			[]response{
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
-						`{"page": {"totalPages": 1, "totalResources": 1}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp"}], "status": "vulnerable"}]}`,
+						`{"page": {"totalPages": 1, "totalResources": 1}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp", "proof": "some proof"}], "status": "vulnerable"}]}`,
 					)))},
 					nil,
 				},
@@ -275,7 +275,7 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 				{
 					ID: "vuln1",
 					Results: []domain.AssessmentResult{
-						{Port: 443, Protocol: "tcp"},
+						{Port: 443, Protocol: "tcp", Proof: "some proof"},
 					},
 					Status: "vulnerable",
 				},
@@ -286,13 +286,13 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			[]response{
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
-						`{"page": {"number": 0, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp"}], "status": "vulnerable"}]}`,
+						`{"page": {"number": 0, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp", "proof": "some proof"}], "status": "vulnerable"}]}`,
 					)))},
 					nil,
 				},
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
-						`{"page": {"number": 1, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln2", "results": [{"port": 80, "protocol": "tcp"}], "status": "invulnerable"}]}`,
+						`{"page": {"number": 1, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln2", "results": [{"port": 80, "protocol": "tcp", "proof": "some proof"}], "status": "invulnerable"}]}`,
 					)))},
 					nil,
 				},
@@ -302,14 +302,14 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 				{
 					ID: "vuln1",
 					Results: []domain.AssessmentResult{
-						{Port: 443, Protocol: "tcp"},
+						{Port: 443, Protocol: "tcp", Proof: "some proof"},
 					},
 					Status: "vulnerable",
 				},
 				{
 					ID: "vuln2",
 					Results: []domain.AssessmentResult{
-						{Port: 80, Protocol: "tcp"},
+						{Port: 80, Protocol: "tcp", Proof: "some proof"},
 					},
 					Status: "invulnerable",
 				},
@@ -320,7 +320,7 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			[]response{
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
-						`{"page": {"number": 0, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp"}]}]}`,
+						`{"page": {"number": 0, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp", "proof": "some proof"}]}]}`,
 					)))},
 					nil,
 				},
@@ -391,7 +391,7 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 		{
 			"success",
 			&http.Response{
-				Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"resources": [{"id": "vuln1", "results": [{"port": 80, "protocol": "tcp"}], "status": "vulnerable"}]}`))),
+				Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"resources": [{"id": "vuln1", "results": [{"port": 80, "protocol": "tcp", "proof": "some proof"}], "status": "vulnerable"}]}`))),
 			},
 			nil,
 			false,
@@ -402,6 +402,7 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 						{
 							Port:     80,
 							Protocol: "tcp",
+							Proof:    "some proof",
 						},
 					},
 					Status: "vulnerable",
@@ -443,10 +444,12 @@ func TestAssetVulnToNexposeAssetVuln(t *testing.T) {
 			{
 				Port:     443,
 				Protocol: "tcp",
+				Proof:    "some proof",
 			},
 			{
 				Port:     80,
 				Protocol: "tcp",
+				Proof:    "some proof",
 			},
 		},
 		Status: "vulnerable",
@@ -457,8 +460,8 @@ func TestAssetVulnToNexposeAssetVuln(t *testing.T) {
 		NexposeAssetVulnerability{
 			ID: "vulnID",
 			Results: []domain.AssessmentResult{
-				{Port: 443, Protocol: "tcp"},
-				{Port: 80, Protocol: "tcp"},
+				{Port: 443, Protocol: "tcp", Proof: "some proof"},
+				{Port: 80, Protocol: "tcp", Proof: "some proof"},
 			},
 			Status: "vulnerable",
 		},

@@ -6,7 +6,6 @@ import (
 
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/logs"
-	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/producer"
 )
 
 // HydrationHandler consumes AssetEvents, hydrates them with vulnerability details,
@@ -61,16 +60,6 @@ func (h *HydrationHandler) Handle(ctx context.Context, evt AssetEvent) error {
 	}
 	assetVulnEvent := domainAssetVulnerabilityDetailsToEvent(assetWithVulnerabilityDetails)
 	_, err = h.Producer.Produce(ctx, assetVulnEvent)
-	switch err.(type) {
-	case producer.ErrSizeLimitExceeded:
-		logger.Error(logs.PayloadSizeLimitExceededError{
-			Reason:      err.Error(),
-			LastScanned: assetVulnEvent.LastScanned.Format(time.RFC3339Nano),
-			ID:          int(assetVulnEvent.ID),
-			Hostname:    assetVulnEvent.Hostname,
-			IP:          assetVulnEvent.IP,
-		})
-	}
 	return err
 }
 

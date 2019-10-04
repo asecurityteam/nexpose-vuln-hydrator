@@ -10,16 +10,14 @@ import (
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 	v1 "github.com/asecurityteam/nexpose-vuln-hydrator/pkg/handlers/v1"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/hydrator"
-	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/producer"
 	"github.com/asecurityteam/serverfull"
 	"github.com/asecurityteam/settings"
 )
 
 type config struct {
-	Producer          *cmpproducer.Config
-	Hydrator          *hydrator.HydratorConfig
-	LambdaMode        bool `description:"Use the Lambda SDK to start the system."`
-	ProducerSizeLimit int  `description:"Apply a size limit (in bytes) to the events produced by this system."`
+	Producer   *cmpproducer.Config
+	Hydrator   *hydrator.HydratorConfig
+	LambdaMode bool `description:"Use the Lambda SDK to start the system."`
 }
 
 func (*config) Name() string {
@@ -86,12 +84,6 @@ func (c *component) New(ctx context.Context, conf *config) (func(context.Context
 		return nil, err
 	}
 
-	if conf.ProducerSizeLimit > 0 {
-		p = &producer.SizeLimitProducer{
-			Wrapped:   p,
-			SizeLimit: conf.ProducerSizeLimit,
-		}
-	}
 	hydrationHandler := &v1.HydrationHandler{
 		Hydrator: assetHydrator,
 		Producer: p,

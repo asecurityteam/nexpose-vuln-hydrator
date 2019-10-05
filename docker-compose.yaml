@@ -28,7 +28,6 @@ services:
       VULNHYDRATOR_HYDRATOR_NEXPOSE_HOST: ""
       VULNHYDRATOR_HYDRATOR_NEXPOSE_PAGESIZE: ""
       VULNHYDRATOR_LAMBDAMODE: "false"
-      VULNHYDRATOR_PRODUCERSIZELIMIT: 262144 # 256KiB in bytes
   gateway-incoming:
     build:
       context: .

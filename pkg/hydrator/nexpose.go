@@ -3,6 +3,7 @@ package hydrator
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -300,6 +301,11 @@ func (n *NexposeClient) makeNexposeRequest(queryParams map[string]string, pathFr
 		return nil, err
 	}
 	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		// Nexpose is down?  Nexpose unexpectedly gave 404?
+		return nil, fmt.Errorf("Nexpose unexpectedly returned non-200 response code: %d", res.StatusCode)
+	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {

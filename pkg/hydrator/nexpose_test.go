@@ -61,21 +61,21 @@ func TestFetchVulnerabilitySolutions(t *testing.T) {
 	}{
 		{
 			"request error",
-			nil,
+			&http.Response{StatusCode: 200},
 			fmt.Errorf("error making request"),
 			true,
 			nil,
 		},
 		{
 			"invalid json error",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`)))},
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`))), StatusCode: 200},
 			nil,
 			true,
 			nil,
 		},
 		{
 			"success",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"links": [], "resources": ["cve1", "cve2"]}`)))},
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"links": [], "resources": ["cve1", "cve2"]}`))), StatusCode: 200},
 			nil,
 			false,
 			[]string{"cve1", "cve2"},
@@ -118,21 +118,21 @@ func TestFetchSolution(t *testing.T) {
 	}{
 		{
 			"request error",
-			nil,
+			&http.Response{StatusCode: 200},
 			fmt.Errorf("error making request"),
 			true,
 			"",
 		},
 		{
 			"invalid json error",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`)))},
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`))), StatusCode: 200},
 			nil,
 			true,
 			"",
 		},
 		{
 			"success",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"steps": {"text": "here is how to fix that cve"}}`)))},
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"steps": {"text": "here is how to fix that cve"}}`))), StatusCode: 200},
 			nil,
 			false,
 			"here is how to fix that cve",
@@ -174,21 +174,21 @@ func TestFetchVulnerabilityDetails(t *testing.T) {
 	}{
 		{
 			"request error",
-			nil,
+			&http.Response{StatusCode: 200},
 			fmt.Errorf("error making request"),
 			true,
 			NexposeVulnerability{},
 		},
 		{
 			"invalid json error",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`)))},
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`))), StatusCode: 200},
 			nil,
 			true,
 			NexposeVulnerability{},
 		},
 		{
 			"success",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"title": "myVuln", "description": {"text": "vuln description"}, "cvss": {"v2": {"score": 7.5}}}`)))},
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"title": "myVuln", "description": {"text": "vuln description"}, "cvss": {"v2": {"score": 7.5}}}`))), StatusCode: 200},
 			nil,
 			false,
 			NexposeVulnerability{
@@ -242,7 +242,7 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			"request error",
 			[]response{
 				{
-					nil,
+					&http.Response{StatusCode: 200},
 					fmt.Errorf("error making request"),
 				},
 			},
@@ -253,7 +253,8 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			"invalid json error",
 			[]response{
 				{
-					&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf(`{notjson}`)})},
+					&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf(`{notjson}`)}),
+						StatusCode: 200},
 					nil,
 				},
 			},
@@ -266,7 +267,8 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
 						`{"page": {"totalPages": 1, "totalResources": 1}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp", "proof": "some proof"}], "status": "vulnerable"}]}`,
-					)))},
+					))),
+						StatusCode: 200},
 					nil,
 				},
 			},
@@ -287,13 +289,15 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
 						`{"page": {"number": 0, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp", "proof": "some proof"}], "status": "vulnerable"}]}`,
-					)))},
+					))),
+						StatusCode: 200},
 					nil,
 				},
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
 						`{"page": {"number": 1, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln2", "results": [{"port": 80, "protocol": "tcp", "proof": "some proof"}], "status": "invulnerable"}]}`,
-					)))},
+					))),
+						StatusCode: 200},
 					nil,
 				},
 			},
@@ -321,11 +325,12 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 				{
 					&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(
 						`{"page": {"number": 0, "totalPages": 2, "totalResources": 2}, "resources": [{"id": "vuln1", "results": [{"port": 443, "protocol": "tcp", "proof": "some proof"}]}]}`,
-					)))},
+					))),
+						StatusCode: 200},
 					nil,
 				},
 				{
-					nil,
+					&http.Response{StatusCode: 200},
 					fmt.Errorf("response error"),
 				},
 			},
@@ -374,7 +379,7 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 	}{
 		{
 			"error",
-			nil,
+			&http.Response{StatusCode: 200},
 			fmt.Errorf("error"),
 			true,
 			nil,
@@ -391,7 +396,8 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 		{
 			"success",
 			&http.Response{
-				Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"resources": [{"id": "vuln1", "results": [{"port": 80, "protocol": "tcp", "proof": "some proof"}], "status": "vulnerable"}]}`))),
+				Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`{"resources": [{"id": "vuln1", "results": [{"port": 80, "protocol": "tcp", "proof": "some proof"}], "status": "vulnerable"}]}`))),
+				StatusCode: 200,
 			},
 			nil,
 			false,
@@ -479,24 +485,38 @@ func TestMakeNexposeRequest(t *testing.T) {
 	}{
 		{
 			"request error",
-			nil,
+			&http.Response{StatusCode: 200},
 			fmt.Errorf("error making request"),
 			true,
 			nil,
 		},
 		{
 			"io error",
-			&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf("io read error")})},
+			&http.Response{Body: ioutil.NopCloser(&errReader{Error: fmt.Errorf("io read error")}), StatusCode: 200},
 			nil,
 			true,
 			nil,
 		},
 		{
 			"success",
-			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte("response")))},
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte("response"))), StatusCode: 200},
 			nil,
 			false,
 			[]byte("response"),
+		},
+		{
+			"not 200",
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))), StatusCode: 502},
+			nil,
+			true,
+			nil,
+		},
+		{
+			"also not 200",
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))), StatusCode: 404},
+			nil,
+			true,
+			nil,
 		},
 	}
 

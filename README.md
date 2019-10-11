@@ -1,6 +1,8 @@
 <a id="markdown-Nexpose-Vulnerability-Hydrator" name="Nexpose Vulnerability Hydrator"></a>
 # Nexpose Vulnerability Hydrator
 [![GoDoc](https://godoc.org/github.com/asecurityteam/nexpose-vuln-hydrator?status.svg)](https://godoc.org/github.com/asecurityteam/nexpose-vuln-hydrator)
+[![Build Status](https://travis-ci.com/asecurityteam/nexpose-vuln-hydrator.png?branch=master)](https://travis-ci.com/asecurityteam/nexpose-vuln-hydrator)
+[![codecov.io](https://codecov.io/github/asecurityteam/nexpose-vuln-hydrator/coverage.svg?branch=master)](https://codecov.io/github/asecurityteam/nexpose-vuln-hydrator?branch=master)
 
 <https://github.com/asecurityteam/nexpose-vuln-hydrator>
 

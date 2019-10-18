@@ -304,7 +304,7 @@ func (n *NexposeClient) makeNexposeRequest(queryParams map[string]string, pathFr
 
 	if res.StatusCode != 200 {
 		// Nexpose is down?  Nexpose unexpectedly gave 404?
-		return nil, fmt.Errorf("Nexpose unexpectedly returned non-200 response code: %d", res.StatusCode)
+		return nil, fmt.Errorf("Nexpose unexpectedly returned non-200 response code: %d attempting to GET: %s", res.StatusCode, u.String())
 	}
 
 	body, err := ioutil.ReadAll(res.Body)

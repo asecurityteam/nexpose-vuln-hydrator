@@ -2,7 +2,6 @@ package dependencycheck
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -16,7 +15,7 @@ type DependencyCheck struct {
 
 // DepCheck fetches the solutions to a particular vulnerability
 func (dc *DependencyCheck) DepCheck(ctx context.Context) error {
-	u, _ := url.Parse(dc.NexposeHost.String() + "/api/3/solutions/mysql-upgrade-latest")
+	u, _ := url.Parse(dc.NexposeHost.String() + "/api/3/solutions/apache-httpd-upgrade-2_4_39")
 	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
 	res, err := dc.HTTPClient.Do(req)
 	if err != nil {
@@ -25,12 +24,7 @@ func (dc *DependencyCheck) DepCheck(ctx context.Context) error {
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		// Nexpose is down?  Nexpose unexpectedly gave 404?
-		headers, errMarshal := json.Marshal(res.Header)
-		if errMarshal != nil {
-			headers = []byte("(could not marshal response headers)")
-		}
-		return fmt.Errorf("Nexpose unexpectedly returned non-200 response code: %d attempting to GET: %s.  Response headers: %s", res.StatusCode, u.String(), string(headers))
+		return fmt.Errorf("Nexpose unexpectedly returned non-200 response code: %d attempting to GET: %s. ", res.StatusCode, u.String())
 	}
 
 	return nil

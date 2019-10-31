@@ -11,14 +11,14 @@ import (
 // NexposeConfig holds configuration to connect to Nexpose
 // and make a call to the fetch assets API
 type DependencyCheckConfig struct {
-	HTTPClient  *httpclient.Config `description:"The HTTP client config from github.com/asecurityteam/component-httpclient."`
-	NexposeHost string             `description:"The scheme and host of a Nexpose instance."`
+	HTTPClient      *httpclient.Config `description:"The HTTP client config from github.com/asecurityteam/component-httpclient."`
+	NexposeEndPoint string             `description:"The scheme and host of a Nexpose instance."`
 }
 
 // Name is used by the settings library and will add a "NEXPOSE_"
 // prefix to NexposeConfig environment variables
 func (c *DependencyCheckConfig) Name() string {
-	return "DependencyCheck"
+	return "NexposeDependencyCheck"
 }
 
 // DependencyCheckComponent satisfies the settings library Component
@@ -42,18 +42,18 @@ func (c *DependencyCheckComponent) Settings() *DependencyCheckConfig {
 }
 
 // New constructs a NexposeClient from a config.
-func (c *DependencyCheckComponent) New(ctx context.Context, config *DependencyCheckConfig) (*DependencyCheck, error) {
+func (c *DependencyCheckComponent) New(ctx context.Context, config *DependencyCheckConfig) (*NexposeDependencyCheck, error) {
 	rt, e := c.HTTP.New(ctx, config.HTTPClient)
 	if e != nil {
 		return nil, e
 	}
-	NexposeHost, err := url.Parse(config.NexposeHost)
+	NexposeEndPoint, err := url.Parse(config.NexposeEndPoint)
 	if err != nil {
 		return nil, err
 	}
 
-	return &DependencyCheck{
-		HTTPClient:  &http.Client{Transport: rt},
-		NexposeHost: NexposeHost,
+	return &NexposeDependencyCheck{
+		HTTPClient:      &http.Client{Transport: rt},
+		NexposeEndPoint: NexposeEndPoint,
 	}, nil
 }

@@ -7,15 +7,15 @@ import (
 	"net/url"
 )
 
-// DependencyCheck implements the interfaces to fetch vulnerabilities and solutions from nexpose
-type DependencyCheck struct {
-	HTTPClient  *http.Client
-	NexposeHost *url.URL
+// NexposeDependencyCheck implements the interfaces to fetch vulnerabilities and solutions from nexpose
+type NexposeDependencyCheck struct {
+	HTTPClient      *http.Client
+	NexposeEndPoint *url.URL
 }
 
-// DepCheck fetches the solutions to a particular vulnerability
-func (dc *DependencyCheck) DepCheck(ctx context.Context) error {
-	u, _ := url.Parse(dc.NexposeHost.String() + "/api/3/solutions/apache-httpd-upgrade-2_4_39")
+// DepCheck calls a Nexpose endpoint and expects a 200
+func (dc *NexposeDependencyCheck) DepCheck(ctx context.Context) error {
+	u, _ := url.Parse(dc.NexposeEndPoint.String())
 	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
 	res, err := dc.HTTPClient.Do(req)
 	if err != nil {

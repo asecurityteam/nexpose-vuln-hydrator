@@ -171,13 +171,27 @@ type NexposeClient struct {
 	PageSize   int
 }
 
+// PermanentError is used as a signal for callers of makeNexposeRequest
+// to handle permanent errors from Nexpose
+type PermanentError struct {
+}
+
+func (pe *PermanentError) Error() string {
+	return "Permanent Nexpose Error"
+}
+
 // FetchVulnerabilitySolutions fetches the solutions to a particular vulnerability
 func (n *NexposeClient) FetchVulnerabilitySolutions(ctx context.Context, vulnID string) ([]string, error) {
-	body, err := n.makeNexposeRequest(nil, "api", "3", "vulnerabilities", vulnID, "solutions")
-	if err != nil {
-		return nil, err
-	}
+	body, err := n.makeNexposeRequest(nil, "api", "3", "vulnerabilities", vulnID, "solutions") // handle permanent errors
 	var solutions vulnerabilitySolutions
+	if err != nil {
+		switch err.(type) {
+		case *PermanentError:
+			return solutions.Resources, nil
+		default:
+			return nil, err
+		}
+	}
 	err = json.Unmarshal(body, &solutions)
 	if err != nil {
 		return nil, err
@@ -187,9 +201,14 @@ func (n *NexposeClient) FetchVulnerabilitySolutions(ctx context.Context, vulnID 
 
 // FetchSolution fetches details about a particular solution
 func (n *NexposeClient) FetchSolution(ctx context.Context, solutionID string) (string, error) {
-	body, err := n.makeNexposeRequest(nil, "api", "3", "solutions", solutionID)
+	body, err := n.makeNexposeRequest(nil, "api", "3", "solutions", solutionID) //handle permanent failures
 	if err != nil {
-		return "", err
+		switch err.(type) {
+		case *PermanentError:
+			return "Could not get solution from Nexpose", nil // is this ok? like the message?
+		default:
+			return "", err
+		}
 	}
 	var solutionDetails solution
 	err = json.Unmarshal(body, &solutionDetails)
@@ -201,9 +220,19 @@ func (n *NexposeClient) FetchSolution(ctx context.Context, solutionID string) (s
 
 // FetchVulnerabilityDetails fetches details about a particular vulnerability
 func (n *NexposeClient) FetchVulnerabilityDetails(ctx context.Context, vulnID string) (NexposeVulnerability, error) {
-	body, err := n.makeNexposeRequest(nil, "api", "3", "vulnerabilities", vulnID)
+	body, err := n.makeNexposeRequest(nil, "api", "3", "vulnerabilities", vulnID) //handle permanent errors!
 	if err != nil {
-		return NexposeVulnerability{}, err
+		switch err.(type) {
+		case *PermanentError:
+			return NexposeVulnerability{
+				Title:          "Can't get Nexpose Title",
+				Description:    "Can't get Nexpose Description",
+				CvssV2Score:    0,
+				CvssV2Severity: "unknown",
+			}, nil // What do we want to fill in with this struct?
+		default:
+			return NexposeVulnerability{}, err
+		}
 	}
 	var vulnDetails vulnerabilityDetails
 	err = json.Unmarshal(body, &vulnDetails)
@@ -220,7 +249,7 @@ func (n *NexposeClient) FetchVulnerabilityDetails(ctx context.Context, vulnID st
 
 // FetchAssetVulnerabilities fetches the list of vulnerabilities for an asset
 func (n *NexposeClient) FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]NexposeAssetVulnerability, error) {
-	body, err := n.makeNexposeRequest(
+	body, err := n.makeNexposeRequest( // no need to check for permanent errors..
 		map[string]string{pageQueryParam: "0", sizeQueryParam: strconv.Itoa(n.PageSize)},
 		"api", "3", "assets", strconv.FormatInt(assetID, 10), "vulnerabilities",
 	)
@@ -269,7 +298,7 @@ func (n *NexposeClient) FetchAssetVulnerabilities(ctx context.Context, assetID i
 func (n *NexposeClient) makePagedAssetVulnerabilitiesRequest(assetID int64, page int) ([]NexposeAssetVulnerability, error) {
 	body, err := n.makeNexposeRequest(
 		map[string]string{pageQueryParam: strconv.Itoa(page), sizeQueryParam: strconv.Itoa(n.PageSize)},
-		"api", "3", "assets", strconv.FormatInt(assetID, 10), "vulnerabilities",
+		"api", "3", "assets", strconv.FormatInt(assetID, 10), "vulnerabilities", // no need to handle permanent errors
 	)
 	if err != nil {
 		return nil, err
@@ -303,6 +332,11 @@ func (n *NexposeClient) makeNexposeRequest(queryParams map[string]string, pathFr
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
+		// this implies permanent error, to which results in an error we should act on
+		// based on the caller
+		if res.StatusCode >= 400 && res.StatusCode <= 500 {
+			return nil, &PermanentError{}
+		}
 		// Nexpose is down?  Nexpose unexpectedly gave 404?
 		headers, errMarshal := json.Marshal(res.Header)
 		if errMarshal != nil {

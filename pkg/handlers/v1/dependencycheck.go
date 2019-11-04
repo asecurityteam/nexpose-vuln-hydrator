@@ -13,6 +13,5 @@ type DependencyCheckHandler struct {
 
 // Handle is aight
 func (h *DependencyCheckHandler) Handle(ctx context.Context) error {
-
 	return h.DependencyChecker.DepCheck(ctx)
 }

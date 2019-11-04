@@ -12,13 +12,13 @@ import (
 // and make a call to the fetch assets API
 type DependencyCheckConfig struct {
 	HTTPClient      *httpclient.Config `description:"The HTTP client config from github.com/asecurityteam/component-httpclient."`
-	NexposeEndPoint string             `description:"The scheme and host of a Nexpose instance."`
+	NexposeEndPoint string             `description:"The scheme and host of a Nexpose instance, including endpoint."`
 }
 
-// Name is used by the settings library and will add a "NEXPOSE_"
-// prefix to NexposeConfig environment variables
+// Name is used by the settings library and will add a "DEPENDENCYCHECK_"
+// prefix to NexposeEndPoint environment variable
 func (c *DependencyCheckConfig) Name() string {
-	return "NexposeDependencyCheck"
+	return "DependencyCheck"
 }
 
 // DependencyCheckComponent satisfies the settings library Component
@@ -41,8 +41,8 @@ func (c *DependencyCheckComponent) Settings() *DependencyCheckConfig {
 	}
 }
 
-// New constructs a NexposeClient from a config.
-func (c *DependencyCheckComponent) New(ctx context.Context, config *DependencyCheckConfig) (*NexposeDependencyCheck, error) {
+// New constructs a DependencyCheck from a config.
+func (c *DependencyCheckComponent) New(ctx context.Context, config *DependencyCheckConfig) (*DependencyCheck, error) {
 	rt, e := c.HTTP.New(ctx, config.HTTPClient)
 	if e != nil {
 		return nil, e
@@ -52,7 +52,7 @@ func (c *DependencyCheckComponent) New(ctx context.Context, config *DependencyCh
 		return nil, err
 	}
 
-	return &NexposeDependencyCheck{
+	return &DependencyCheck{
 		HTTPClient:      &http.Client{Transport: rt},
 		NexposeEndPoint: NexposeEndPoint,
 	}, nil

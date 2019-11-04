@@ -28,6 +28,7 @@ services:
       VULNHYDRATOR_HYDRATOR_NEXPOSE_HOST: ""
       VULNHYDRATOR_HYDRATOR_NEXPOSE_PAGESIZE: ""
       VULNHYDRATOR_LAMBDAMODE: "false"
+      VULNHYDRATOR_DEPENDENCYCHECK_NEXPOSEENDPOINT: "" # point to a nexpose endpoint that returns a 200
   gateway-incoming:
     build:
       context: .

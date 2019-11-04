@@ -15,6 +15,7 @@
         - [Logging](#logging)
         - [Stats](#stats)
         - [Authentication](#authentication)
+        - [Dependency Check](#dependencycheck)
     - [Status](#status)
     - [Contributing](#contributing)
         - [Building And Testing](#building-and-testing)
@@ -129,6 +130,16 @@ basic authentication. These environment variables look like:
 |-----------------------|--------------------------------------------------------------------------------------|-------------------------------|
 | NEXPOSE_API_USERNAME  | Username to access the Nexpose instance                                              | myusername                    |
 | NEXPOSE_API_PASSWORD  | Password that corresponds to the provided username                                   | mypassword                    |
+
+<a id="markdown-dependencycheck" name="dependencycheck"></a>
+### Dependency Check
+Depending on the user, this service or app can be composed of a bunch of sidecars. While one can check whether the configuration and
+placement of these sidecars are configured correctly internally it might be useful to check whether environment variables point
+to the correct external dependencies.
+
+An obvious external dependency would be Nexpose itself. Consider configuring `VULNHYDRATOR_DEPENDENCYCHECK_NEXPOSEENDPOINT` within `docker-compose.yaml`, that way
+users can check whether they are able to connect to Nexpose with `/dependencycheck`(example in `gateway-incoming.yaml`).
+
 
 <a id="markdown-status" name="status"></a>
 ## Status

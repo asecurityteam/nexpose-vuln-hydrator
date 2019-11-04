@@ -8,7 +8,7 @@ import (
 	httpclient "github.com/asecurityteam/component-httpclient"
 )
 
-// NexposeConfig holds configuration to connect to Nexpose
+// DependencyCheckConfig holds configuration to connect to Nexpose
 // and make a call to the fetch assets API
 type DependencyCheckConfig struct {
 	HTTPClient      *httpclient.Config `description:"The HTTP client config from github.com/asecurityteam/component-httpclient."`
@@ -27,7 +27,7 @@ type DependencyCheckComponent struct {
 	HTTP *httpclient.Component
 }
 
-// NewNexposeComponent generates a NexposeComponent.
+// NewDependencyCheckComponent generates a NewDependencyCheckComponent.
 func NewDependencyCheckComponent() *DependencyCheckComponent {
 	return &DependencyCheckComponent{
 		HTTP: httpclient.NewComponent(),

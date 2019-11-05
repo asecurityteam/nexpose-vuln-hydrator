@@ -47,13 +47,12 @@ func (c *DependencyCheckComponent) New(ctx context.Context, config *DependencyCh
 	if e != nil {
 		return nil, e
 	}
-	NexposeEndPoint, err := url.Parse(config.NexposeEndPoint)
+	nexposeEndPoint, err := url.Parse(config.NexposeEndPoint)
 	if err != nil {
 		return nil, err
 	}
-
 	return &DependencyCheck{
 		HTTPClient:      &http.Client{Transport: rt},
-		NexposeEndPoint: NexposeEndPoint,
+		NexposeEndPoint: nexposeEndPoint,
 	}, nil
 }

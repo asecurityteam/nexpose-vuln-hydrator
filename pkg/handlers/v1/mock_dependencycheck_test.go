@@ -6,8 +6,9 @@ package v1
 
 import (
 	context "context"
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockDependencyChecker is a mock of DependencyChecker interface
@@ -33,16 +34,16 @@ func (m *MockDependencyChecker) EXPECT() *MockDependencyCheckerMockRecorder {
 	return m.recorder
 }
 
-// DepCheck mocks base method
-func (m *MockDependencyChecker) DepCheck(arg0 context.Context) error {
+// CheckDependencies mocks base method
+func (m *MockDependencyChecker) CheckDependencies(arg0 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DepCheck", arg0)
+	ret := m.ctrl.Call(m, "CheckDependencies", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DepCheck indicates an expected call of DepCheck
-func (mr *MockDependencyCheckerMockRecorder) DepCheck(arg0 interface{}) *gomock.Call {
+// CheckDependencies indicates an expected call of CheckDependencies
+func (mr *MockDependencyCheckerMockRecorder) CheckDependencies(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DepCheck", reflect.TypeOf((*MockDependencyChecker)(nil).DepCheck), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckDependencies", reflect.TypeOf((*MockDependencyChecker)(nil).CheckDependencies), arg0)
 }

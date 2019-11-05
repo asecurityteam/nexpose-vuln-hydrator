@@ -13,8 +13,8 @@ type DependencyCheck struct {
 	NexposeEndPoint *url.URL
 }
 
-// DepCheck calls a Nexpose endpoint and expects a 200
-func (dc *DependencyCheck) DepCheck(ctx context.Context) error {
+// CheckDependencies calls a Nexpose endpoint and expects a 200
+func (dc *DependencyCheck) CheckDependencies(ctx context.Context) error {
 	u, _ := url.Parse(dc.NexposeEndPoint.String())
 	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
 	res, err := dc.HTTPClient.Do(req)

@@ -26,7 +26,7 @@ func TestDepCheckSuccess(t *testing.T) {
 		HTTPClient:      &http.Client{Transport: mockRT},
 		NexposeEndPoint: nexposeURL,
 	}
-	err := depCheck.DepCheck(context.Background())
+	err := depCheck.CheckDependencies(context.Background())
 	assert.Equal(t, err, nil)
 }
 
@@ -44,6 +44,6 @@ func TestDepCheckFailure(t *testing.T) {
 		HTTPClient:      &http.Client{Transport: mockRT},
 		NexposeEndPoint: nexposeURL,
 	}
-	err := depCheck.DepCheck(context.Background())
+	err := depCheck.CheckDependencies(context.Background())
 	assert.NotNil(t, err, nil)
 }

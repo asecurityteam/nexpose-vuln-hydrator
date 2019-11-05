@@ -11,7 +11,7 @@ type DependencyCheckHandler struct {
 	DependencyChecker domain.DependencyChecker
 }
 
-// Handle is aight
+// Handle calls dependency checker
 func (h *DependencyCheckHandler) Handle(ctx context.Context) error {
-	return h.DependencyChecker.DepCheck(ctx)
+	return h.DependencyChecker.CheckDependencies(ctx)
 }

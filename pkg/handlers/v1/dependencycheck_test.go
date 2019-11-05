@@ -14,7 +14,7 @@ func TestDepCheckHandleSuccess(t *testing.T) {
 	defer ctrl.Finish()
 
 	MockDependencyChecker := NewMockDependencyChecker(ctrl)
-	MockDependencyChecker.EXPECT().DepCheck(context.Background()).Return(nil)
+	MockDependencyChecker.EXPECT().CheckDependencies(context.Background()).Return(nil)
 	handler := &DependencyCheckHandler{
 		DependencyChecker: MockDependencyChecker,
 	}
@@ -28,7 +28,7 @@ func TestDepCheckHandleError(t *testing.T) {
 	defer ctrl.Finish()
 
 	MockDependencyChecker := NewMockDependencyChecker(ctrl)
-	MockDependencyChecker.EXPECT().DepCheck(context.Background()).Return(fmt.Errorf("error"))
+	MockDependencyChecker.EXPECT().CheckDependencies(context.Background()).Return(fmt.Errorf("error"))
 	handler := &DependencyCheckHandler{
 		DependencyChecker: MockDependencyChecker,
 	}

@@ -10,12 +10,12 @@ import (
 // DependencyCheck implements the interfaces to fetch vulnerabilities and solutions from nexpose
 type DependencyCheck struct {
 	HTTPClient      *http.Client
-	NexposeEndPoint *url.URL
+	NexposeEndpoint *url.URL
 }
 
 // CheckDependencies calls a Nexpose endpoint and expects a 200
 func (dc *DependencyCheck) CheckDependencies(ctx context.Context) error {
-	u, _ := url.Parse(dc.NexposeEndPoint.String())
+	u, _ := url.Parse(dc.NexposeEndpoint.String())
 	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
 	res, err := dc.HTTPClient.Do(req)
 	if err != nil {

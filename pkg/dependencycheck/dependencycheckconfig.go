@@ -12,7 +12,7 @@ import (
 // and make a call to the fetch assets API
 type DependencyCheckConfig struct {
 	HTTPClient      *httpclient.Config `description:"The HTTP client config from github.com/asecurityteam/component-httpclient."`
-	NexposeEndPoint string             `description:"The scheme and host of a Nexpose instance, including endpoint."`
+	NexposeEndpoint string             `description:"The scheme and host of a Nexpose instance, including endpoint."`
 }
 
 // Name is used by the settings library and will add a "DEPENDENCYCHECK_"
@@ -47,12 +47,12 @@ func (c *DependencyCheckComponent) New(ctx context.Context, config *DependencyCh
 	if e != nil {
 		return nil, e
 	}
-	nexposeEndPoint, err := url.Parse(config.NexposeEndPoint)
+	nexposeEndpoint, err := url.Parse(config.NexposeEndpoint)
 	if err != nil {
 		return nil, err
 	}
 	return &DependencyCheck{
 		HTTPClient:      &http.Client{Transport: rt},
-		NexposeEndPoint: nexposeEndPoint,
+		NexposeEndpoint: nexposeEndpoint,
 	}, nil
 }

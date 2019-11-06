@@ -2,7 +2,6 @@ package dependencycheck
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,6 +25,4 @@ func TestDepCheckNew(t *testing.T) {
 	dependencyCheck, _ := dependencyCheckComponent.New(context.Background(), dependencyCheckConfig)
 	assert.IsType(t, dependencyCheck, &DependencyCheck{})
 	assert.NotNil(t, dependencyCheckConfig.HTTPClient)
-	fmt.Println("dependencyCheck.NexposeEndPoint")
-	fmt.Println(dependencyCheck.NexposeEndPoint)
 }

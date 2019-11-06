@@ -7,6 +7,7 @@ import (
 	"os"
 
 	cmpproducer "github.com/asecurityteam/component-producer"
+	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/dependencycheck"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 	v1 "github.com/asecurityteam/nexpose-vuln-hydrator/pkg/handlers/v1"
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/hydrator"
@@ -15,9 +16,10 @@ import (
 )
 
 type config struct {
-	Producer   *cmpproducer.Config
-	Hydrator   *hydrator.HydratorConfig
-	LambdaMode bool `description:"Use the Lambda SDK to start the system."`
+	Producer          *cmpproducer.Config
+	Hydrator          *hydrator.HydratorConfig
+	LambdaMode        bool `description:"Use the Lambda SDK to start the system."`
+	DependencyChecker *dependencycheck.DependencyCheckConfig
 }
 
 func (*config) Name() string {
@@ -25,21 +27,24 @@ func (*config) Name() string {
 }
 
 type component struct {
-	Producer *cmpproducer.Component
-	Hydrator *hydrator.HydratorComponent
+	Producer          *cmpproducer.Component
+	Hydrator          *hydrator.HydratorComponent
+	DependencyChecker *dependencycheck.DependencyCheckComponent
 }
 
 func newComponent() *component {
 	return &component{
-		Producer: cmpproducer.NewComponent(),
-		Hydrator: hydrator.NewHydratorComponent(),
+		Producer:          cmpproducer.NewComponent(),
+		Hydrator:          hydrator.NewHydratorComponent(),
+		DependencyChecker: dependencycheck.NewDependencyCheckComponent(),
 	}
 }
 
 func (c *component) Settings() *config {
 	return &config{
-		Producer: c.Producer.Settings(),
-		Hydrator: c.Hydrator.Settings(),
+		Producer:          c.Producer.Settings(),
+		Hydrator:          c.Hydrator.Settings(),
+		DependencyChecker: c.DependencyChecker.Settings(),
 	}
 }
 
@@ -89,8 +94,16 @@ func (c *component) New(ctx context.Context, conf *config) (func(context.Context
 		Producer: p,
 		LogFn:    domain.LoggerFromContext,
 	}
+
+	dependencyCheck, err := c.DependencyChecker.New(ctx, conf.DependencyChecker)
+	if err != nil {
+		return nil, err
+	}
+	dependencyCheckHandler := &v1.DependencyCheckHandler{DependencyChecker: dependencyCheck}
+
 	handlers := map[string]serverfull.Function{
-		"hydrate": serverfull.NewFunction(hydrationHandler.Handle),
+		"hydrate":         serverfull.NewFunction(hydrationHandler.Handle),
+		"dependencycheck": serverfull.NewFunction(dependencyCheckHandler.Handle),
 	}
 
 	fetcher := &serverfull.StaticFetcher{Functions: handlers}

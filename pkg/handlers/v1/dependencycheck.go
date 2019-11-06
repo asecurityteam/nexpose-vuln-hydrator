@@ -6,7 +6,8 @@ import (
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 )
 
-// DependencyCheckHandler is cool
+// DependencyCheckHandler takes in a domain.DependencyChecker, which
+// contains procedures that checks external dependencies
 type DependencyCheckHandler struct {
 	DependencyChecker domain.DependencyChecker
 }

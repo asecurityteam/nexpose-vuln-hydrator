@@ -104,7 +104,6 @@ type result struct {
 // AssetVulnerabilitiesFetcher represents an interface for fetching asset vulnerabilities
 type AssetVulnerabilitiesFetcher interface {
 	FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]NexposeAssetVulnerability, error)
-	CheckDependencies(ctx context.Context) error
 }
 
 type vulnerabilityDetails struct {

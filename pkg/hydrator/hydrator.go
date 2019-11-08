@@ -53,6 +53,7 @@ func (c *HydratorComponent) New(ctx context.Context, config *HydratorConfig) (*H
 				},
 			},
 		},
+		DependencyChecker: nexposeClient,
 	}
 	return hydrator, nil
 }
@@ -61,6 +62,7 @@ func (c *HydratorComponent) New(ctx context.Context, config *HydratorConfig) (*H
 type Hydrator struct {
 	AssetVulnerabilitiesFetcher     AssetVulnerabilitiesFetcher
 	BatchAssetVulnerabilityHydrator BatchAssetVulnerabilityHydrator
+	DependencyChecker               domain.DependencyChecker
 }
 
 // HydrateVulnerabilities accepts a domain.Asset and fetches the information necessary to populate its vulnerabilities
@@ -87,5 +89,5 @@ func (h *Hydrator) HydrateVulnerabilities(ctx context.Context, a domain.Asset) (
 func (h *Hydrator) CheckDependencies(ctx context.Context) error {
 	// There is no need to check dependencies for h.BatchAssetVulnerabilityHydrator, for
 	// they share the same NexposeClient
-	return h.AssetVulnerabilitiesFetcher.CheckDependencies(ctx)
+	return h.DependencyChecker.CheckDependencies(ctx)
 }

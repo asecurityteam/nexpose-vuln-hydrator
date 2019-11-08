@@ -77,6 +77,7 @@ github.com/asecurityteam/logevent v0.0.0-20190225122144-b32737d8d51c h1:v630DsE4
 github.com/asecurityteam/logevent v0.0.0-20190225122144-b32737d8d51c/go.mod h1:B8p/D2QVPuRA9tiDTByVrXegCsrfy8bWEgnAka23EO0=
 github.com/asecurityteam/logevent v1.1.0 h1:rP9IOHE7tnVwTF4v9AfzmdX+AfagkPZ6Hx/T9l/fVIE=
 github.com/asecurityteam/logevent v1.1.0/go.mod h1:honZzywisDv/eTdOIWaNjJ1p0zgCG68zARUkr35CYDA=
+github.com/asecurityteam/nexpose-scan-notifier v0.3.1 h1:lMMAEFVWoSIZng+aUJM+w/SWHZvLKDLQkqewxDIfBlU=
 github.com/asecurityteam/runhttp v0.0.0-20190611212819-e67777b27ba7/go.mod h1:13Zb/7m5FQVu1gHjt+YDse6aqfJ5LuC79u8xjM64jrI=
 github.com/asecurityteam/runhttp v0.2.0 h1:guvLZ5cGR2g+XKUuyTGf7e2Myx/F3TbQITUHXsXP+9M=
 github.com/asecurityteam/runhttp v0.2.0/go.mod h1:13Zb/7m5FQVu1gHjt+YDse6aqfJ5LuC79u8xjM64jrI=
@@ -441,8 +442,8 @@ github.com/uber-go/atomic v1.3.2/go.mod h1:/Ct5t2lcmbJ4OSe/waGBoaVvVqtO0bmtfVNex
 github.com/uber/jaeger-client-go v2.15.0+incompatible/go.mod h1:WVhlPFC8FDjOFMMWRy2pZqQJSXxYSwNYOkTr/Z6d3Kk=
 github.com/uber/jaeger-client-go v2.16.0+incompatible h1:Q2Pp6v3QYiocMxomCaJuwQGFt7E53bPYqEgug/AoBtY=
 github.com/uber/jaeger-client-go v2.16.0+incompatible/go.mod h1:WVhlPFC8FDjOFMMWRy2pZqQJSXxYSwNYOkTr/Z6d3Kk=
-github.com/uber/jaeger-lib v1.5.0+incompatible/go.mod h1:ComeNDZlWwrWnDv8aPp0Ba6+uUTzImX/AauajbLI56U=
 github.com/uber/jaeger-lib v1.5.0/go.mod h1:ComeNDZlWwrWnDv8aPp0Ba6+uUTzImX/AauajbLI56U=
+github.com/uber/jaeger-lib v1.5.0+incompatible/go.mod h1:ComeNDZlWwrWnDv8aPp0Ba6+uUTzImX/AauajbLI56U=
 github.com/uber/jaeger-lib v2.0.0+incompatible h1:iMSCV0rmXEogjNWPh2D0xk9YVKvrtGoHJNe9ebLu/pw=
 github.com/uber/jaeger-lib v2.0.0+incompatible/go.mod h1:ComeNDZlWwrWnDv8aPp0Ba6+uUTzImX/AauajbLI56U=
 github.com/vincent-petithory/dataurl v0.0.0-20160330182126-9a301d65acbb h1:lyL3z7vYwTWXf4/bI+A01+cCSnfhKIBhy+SQ46Z/ml8=

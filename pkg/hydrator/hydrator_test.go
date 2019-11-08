@@ -2,6 +2,7 @@ package hydrator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -62,8 +63,8 @@ func TestHydrator(t *testing.T) {
 			mockAssetVulnsFetcher.EXPECT().FetchAssetVulnerabilities(gomock.Any(), gomock.Any()).Return(test.assetVulnsResult, test.assetVulnsError)
 			mockAssetVulnHydrator := NewMockBatchAssetVulnerabilityHydrator(ctrl)
 			mockAssetVulnHydrator.EXPECT().BatchHydrateAssetVulnerabilities(gomock.Any(), gomock.Any()).Return(test.hydrateVulnsResult, test.hydrateVulnsError)
-
-			hydrator := Hydrator{mockAssetVulnsFetcher, mockAssetVulnHydrator}
+			mockDependencyChecker := NewMockDependencyChecker(ctrl)
+			hydrator := Hydrator{mockAssetVulnsFetcher, mockAssetVulnHydrator, mockDependencyChecker}
 			details, err := hydrator.HydrateVulnerabilities(context.Background(), domain.Asset{ID: assetID})
 			if test.expectedErr {
 				assert.NotNil(tt, err)
@@ -115,6 +116,36 @@ func TestNewHydratorComponent(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
 			_, err := c.New(test.ctx, test.config(test.hydratorComponent))
+			assert.Equal(tt, test.expectedErr, err != nil)
+		})
+	}
+}
+
+func TestHydratorDependencyCheck(t *testing.T) {
+	tests := []struct {
+		name                  string
+		dependencyCheckReturn error
+		expectedErr           bool
+	}{
+		{
+			name:                  "success",
+			dependencyCheckReturn: nil,
+			expectedErr:           false,
+		},
+		{
+			name:                  "failure",
+			dependencyCheckReturn: errors.New("🗑️"),
+			expectedErr:           true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			ctrl := gomock.NewController(tt)
+
+			mockDependencyChecker := NewMockDependencyChecker(ctrl)
+			mockDependencyChecker.EXPECT().CheckDependencies(gomock.Any()).Return(test.dependencyCheckReturn)
+			hydrator := Hydrator{DependencyChecker: mockDependencyChecker}
+			err := hydrator.CheckDependencies(context.Background())
 			assert.Equal(tt, test.expectedErr, err != nil)
 		})
 	}

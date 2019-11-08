@@ -344,3 +344,22 @@ func cvssV2Severity(score float64) string {
 	}
 	return "Invalid Score Value"
 }
+
+// CheckDependencies makes a call to the nexpose endppoint "/api/3".
+// Because asset producer endpoints vary user to user, we want to hit an endpoint
+// that is consistent for any Nexpose user
+func (n *NexposeClient) CheckDependencies(ctx context.Context) error {
+	u, _ := url.Parse(n.Host.String())
+	u.Path = path.Join("/api/3")
+	req, _ := http.NewRequest(http.MethodGet, u.String(), http.NoBody)
+	res, err := n.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		return fmt.Errorf("Nexpose unexpectedly returned non-200 response code: %d attempting to GET: %s. ", res.StatusCode, u.String())
+	}
+
+	return nil
+}

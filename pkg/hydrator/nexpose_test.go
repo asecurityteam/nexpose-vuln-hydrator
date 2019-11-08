@@ -573,3 +573,39 @@ func TestCvssSeverity(t *testing.T) {
 		})
 	}
 }
+
+func TestNexposeDependencyCheck(t *testing.T) {
+	tests := []struct {
+		name               string
+		clientReturnStatus int
+		expectedErr        bool
+	}{
+		{
+			name:               "success",
+			clientReturnStatus: http.StatusOK,
+			expectedErr:        false,
+		},
+		{
+			name:               "failure",
+			clientReturnStatus: http.StatusTeapot,
+			expectedErr:        true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			ctrl := gomock.NewController(tt)
+			mockRT := NewMockRoundTripper(ctrl)
+			mockRT.EXPECT().RoundTrip(gomock.Any()).Return(&http.Response{
+				Body:       ioutil.NopCloser(bytes.NewReader([]byte("🐖"))),
+				StatusCode: test.clientReturnStatus,
+			}, nil)
+			clientURL, _ := url.Parse("http://localhost")
+			client := NexposeClient{
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
+			}
+			err := client.CheckDependencies(context.Background())
+			assert.Equal(tt, test.expectedErr, err != nil)
+		})
+	}
+}

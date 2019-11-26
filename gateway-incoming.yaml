@@ -109,7 +109,7 @@ components:
       required:
         - id
         - hostname
-        - lastScanned
+        - scanTime
       properties:
         hostname:
           type: string
@@ -124,16 +124,16 @@ components:
           type: string
           example: 182.34.74.202
           description: The primary IPv4 or IPv6 address of the asset.
-        lastScanned:
+        scanTime:
           type: string
           format: date-time
-          description: The last time the asset was scanned.
+          description: The time the asset was scanned in ISO8601 format.
     AssetWithIP:
       type: object
       required:
         - id
         - ip
-        - lastScanned
+        - scanTime
       properties:
         hostname:
           type: string
@@ -148,16 +148,16 @@ components:
           type: string
           example: 182.34.74.202
           description: The primary IPv4 or IPv6 address of the asset.
-        lastScanned:
+        scanTime:
           type: string
           format: date-time
-          description: The last time the asset was scanned.
+          description: The time the asset was scanned in ISO8601 format.
     AssetWithVulnerabilities:
       type: object
       required:
         - id
         - ip
-        - lastScanned
+        - scanTime
         - assetVulnerabilityDetails
       properties:
         hostname:
@@ -173,10 +173,10 @@ components:
           type: string
           example: 182.34.74.202
           description: The primary IPv4 or IPv6 address of the asset.
-        lastScanned:
+        scanTime:
           type: string
           format: date-time
-          description: The last time the asset was scanned.
+          description: The time the asset was scanned in ISO8601 format.
         assetVulnerabilityDetails:
           type: array
           description: List of vulnerabilities found on the asset.

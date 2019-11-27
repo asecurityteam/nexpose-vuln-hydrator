@@ -19,7 +19,7 @@ type HydrationHandler struct {
 // AssetEvent contains JSON annotations for scanned Asset events
 type AssetEvent struct {
 	ScanTime    time.Time `json:"scanTime"`
-	LastScanned time.Time `json:"scanTime"`
+	LastScanned time.Time `json:"lastScanned"`
 	ID          int64     `json:"id"`
 	IP          string    `json:"ip"`
 	Hostname    string    `json:"hostname"`

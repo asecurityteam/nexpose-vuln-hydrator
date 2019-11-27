@@ -553,7 +553,6 @@ components:
       type: object
       description: "AssetVulnerabilityEventWithHostname contains the Asset info, and has vulnerability details"
       required:
-        - scanTime
         - id
         - hostname
       properties:
@@ -569,6 +568,9 @@ components:
         scanTime:
           type: string
           format: date-time
+        lastScanned:
+          type: string
+          format: date-time
           description: The time the asset was scanned in ISO8601 format.
         assetVulnerabilityDetails:
           type: array
@@ -581,7 +583,6 @@ components:
       required:
         - id
         - ip
-        - scanTime
       properties:
         id:
           type: integer
@@ -593,6 +594,9 @@ components:
           example: 182.34.74.202
           description: The primary IPv4 or IPv6 address of the asset.
         scanTime:
+          type: string
+          format: date-time
+        lastScanned:
           type: string
           format: date-time
           description: The time the asset was scanned in ISO8601 format.

@@ -18,10 +18,11 @@ type HydrationHandler struct {
 
 // AssetEvent contains JSON annotations for scanned Asset events
 type AssetEvent struct {
-	ScanTime time.Time `json:"scanTime"`
-	ID       int64     `json:"id"`
-	IP       string    `json:"ip"`
-	Hostname string    `json:"hostname"`
+	ScanTime    time.Time `json:"scanTime"`
+	LastScanned time.Time `json:"scanTime"`
+	ID          int64     `json:"id"`
+	IP          string    `json:"ip"`
+	Hostname    string    `json:"hostname"`
 }
 
 // AssetVulnerabilitiesEvent contains the Asset event hydrated with vulnerability details

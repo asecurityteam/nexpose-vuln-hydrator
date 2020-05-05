@@ -69,6 +69,33 @@ type SolutionFetcher interface {
 	FetchSolution(ctx context.Context, solutionID string) (string, error)
 }
 
+// VulnerabilityChecksFetcher represents an interface for fetching links to the
+// checks used to detect a particular vulnerability
+type VulnerabilityChecksFetcher interface {
+	FetchVulnerabilityChecks(ctx context.Context, vulnID string) ([]string, error)
+}
+
+type vulnerabilityChecks struct {
+	Links     []link   `json:"links"`
+	Resources []string `json:"resources"`
+}
+
+// CheckFetcher represents an interface for fetching vulnerability checks and returning
+// whether they require an authenticated scan
+type CheckFetcher interface {
+	FetchCheck(ctx context.Context, checkID string) (bool, error)
+}
+
+type check struct {
+	Plugin              string `json:"plugin"`
+	Potential           bool   `json:"potential"`
+	RequiresCredentials bool   `json:"requiresCredentials"`
+	Safe                bool   `json:"safe"`
+	Service             bool   `json:"service"`
+	Unique              bool   `json:"unique"`
+	Vulnerability       string `json:"vulnerability"`
+}
+
 type assetVulnerabilities struct {
 	Links     []link     `json:"links"`
 	Page      page       `json:"page"`
@@ -197,6 +224,37 @@ func (n *NexposeClient) FetchSolution(ctx context.Context, solutionID string) (s
 		return "", err
 	}
 	return solutionDetails.Steps.Text, nil
+}
+
+// FetchVulnerabilityChecks fetches the checks used to detect a particular vulnerability
+func (n *NexposeClient) FetchVulnerabilityChecks(ctx context.Context, vulnID string) ([]string, error) {
+	body, err := n.makeNexposeRequest(nil, "api", "3", "vulnerabilities", vulnID, "checks")
+	if err != nil {
+		return nil, err
+	}
+	var checks vulnerabilityChecks
+	err = json.Unmarshal(body, &checks)
+	if err != nil {
+		return nil, err
+	}
+	return checks.Resources, nil
+}
+
+// FetchCheck fetches the details about a particular vulnerability check and returns
+// whether the check requires authentication credentials to perform
+func (n *NexposeClient) FetchCheck(ctx context.Context, checkID string) (bool, error) {
+	body, err := n.makeNexposeRequest(nil, "api", "3", "vulnerability_checks", checkID)
+	if err != nil {
+		return false, err
+	}
+	var checkDetails check
+	err = json.Unmarshal(body, &checkDetails)
+	if err != nil {
+		return false, err
+	}
+	// From the :nexpose: API Docs: The "service" fields represents "whether the check operates
+	// against a service, or false it it is a local check".
+	return !checkDetails.Service, nil
 }
 
 // FetchVulnerabilityDetails fetches details about a particular vulnerability

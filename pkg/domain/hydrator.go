@@ -26,6 +26,7 @@ type VulnerabilityDetails struct {
 	CvssV2Severity string
 	Description    string
 	Title          string
+	LocalCheck     bool
 	Solutions      []string
 }
 

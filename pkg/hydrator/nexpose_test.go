@@ -164,6 +164,128 @@ func TestFetchSolution(t *testing.T) {
 		})
 	}
 }
+
+func TestFetchVulnerabilityChecks(t *testing.T) {
+	tests := []struct {
+		name           string
+		response       *http.Response
+		reqError       error
+		expectedError  bool
+		expectedChecks []string
+	}{
+		{
+			"request error",
+			&http.Response{StatusCode: 200},
+			fmt.Errorf("error making request"),
+			true,
+			nil,
+		},
+		{
+			"invalid json error",
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`))), StatusCode: 200},
+			nil,
+			true,
+			nil,
+		},
+		{
+			"success",
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"links": [], "resources": ["check1", "check2"]}`))), StatusCode: 200},
+			nil,
+			false,
+			[]string{"check1", "check2"},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			ctrl := gomock.NewController(tt)
+			defer ctrl.Finish()
+			mockRT := NewMockRoundTripper(ctrl)
+			mockRT.EXPECT().RoundTrip(
+				&requestMatcher{URL: "http://nexpose.com/api/3/vulnerabilities/vulnID/checks"},
+			).Return(test.response, test.reqError)
+			clientURL, _ := url.Parse(nexposeHost)
+			client := NexposeClient{
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
+			}
+
+			checks, err := client.FetchVulnerabilityChecks(context.Background(), "vulnID")
+
+			if test.expectedError {
+				assert.NotNil(tt, err)
+			} else {
+				assert.Nil(tt, err)
+				assert.ElementsMatch(tt, test.expectedChecks, checks)
+			}
+		})
+	}
+}
+
+func TestFetchCheck(t *testing.T) {
+	tests := []struct {
+		name          string
+		response      *http.Response
+		reqError      error
+		expectedError bool
+		expectedValue bool
+	}{
+		{
+			"request error",
+			&http.Response{StatusCode: 200},
+			fmt.Errorf("error making request"),
+			true,
+			false,
+		},
+		{
+			"invalid json error",
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{notjson}`))), StatusCode: 200},
+			nil,
+			true,
+			false,
+		},
+		{
+			"success - negative case",
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"id": "ssl-cve-2011-3389-beast", "links": [{"href": "https://nexpose.sec.internal.atlassian.com/api/3/vulnerability_checks/ssl-cve-2011-3389-beast", "rel": "self"}, {"id": "ssl-cve-2011-3389-beast", "href": "https://nexpose.sec.internal.atlassian.com/api/3/vulnerabilities/ssl-cve-2011-3389-beast", "rel": "Vulnerability"}], "plugin": "NetworkRemoteScanners", "potential": false, "requiresCredentials": true, "safe": true, "service": true, "unique": true, "vulnerability": "ssl-cve-2011-3389-beast"}`))), StatusCode: 200},
+			nil,
+			false,
+			false,
+		},
+		{
+			"success - positive case",
+			&http.Response{Body: ioutil.NopCloser(bytes.NewBuffer([]byte(`{"id": "jre-vuln-cve-2018-2800", "links": [{"href": "https://nexpose.sec.internal.atlassian.com/api/3/vulnerability_checks/jre-vuln-cve-2018-2800", "rel": "self"}, {"id": "jre-vuln-cve-2018-2800", "href": "https://nexpose.sec.internal.atlassian.com/api/3/vulnerabilities/jre-vuln-cve-2018-2800", "rel": "Vulnerability"}], "plugin": "OracleJavaScanner", "potential": false, "requiresCredentials": true, "safe": true, "service": false, "unique": false, "vulnerability": "jre-vuln-cve-2018-2800"}`))), StatusCode: 200},
+			nil,
+			false,
+			true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			ctrl := gomock.NewController(tt)
+			defer ctrl.Finish()
+			mockRT := NewMockRoundTripper(ctrl)
+			mockRT.EXPECT().RoundTrip(
+				&requestMatcher{URL: "http://nexpose.com/api/3/vulnerability_checks/checkID"},
+			).Return(test.response, test.reqError)
+			clientURL, _ := url.Parse(nexposeHost)
+			client := NexposeClient{
+				HTTPClient: &http.Client{Transport: mockRT},
+				Host:       clientURL,
+			}
+
+			isLocalCheck, err := client.FetchCheck(context.Background(), "checkID")
+
+			if test.expectedError {
+				assert.NotNil(tt, err)
+			} else {
+				assert.Nil(tt, err)
+				assert.Equal(tt, test.expectedValue, isLocalCheck)
+			}
+		})
+	}
+}
+
 func TestFetchVulnerabilityDetails(t *testing.T) {
 	tests := []struct {
 		name                string

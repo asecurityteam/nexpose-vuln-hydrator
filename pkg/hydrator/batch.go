@@ -47,7 +47,8 @@ func (b *batchSolutionFetcher) BatchFetchSolution(ctx context.Context, solutionI
 	return solutions, nil
 }
 
-// BatchCheckFetcher represents an interface for concurrently fetching checks
+// BatchCheckFetcher represents an interface for concurrently fetching checks, and returning
+// whether they are local, authenticated checks or not.
 type BatchCheckFetcher interface {
 	BatchFetchCheck(ctx context.Context, checkIDs []string) ([]bool, error)
 }
@@ -56,6 +57,8 @@ type batchCheckFetcher struct {
 	CheckFetcher CheckFetcher
 }
 
+// BatchFetchCheck fetches all the checks represented by checkIDs, and returns whether they
+// are local, authenticated checks.
 func (b *batchCheckFetcher) BatchFetchCheck(ctx context.Context, checkIDs []string) ([]bool, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()

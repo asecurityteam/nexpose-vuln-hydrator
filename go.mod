@@ -20,7 +20,7 @@ require (
 	github.com/aws/aws-sdk-go v1.21.8 // indirect
 	github.com/frankban/quicktest v1.4.2 // indirect
 	github.com/getkin/kin-openapi v0.0.0-20190729060947-8785b416cb32 // indirect
-	github.com/golang/mock v1.3.1
+	github.com/golang/mock v1.4.3
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/justinas/alice v0.0.0-20171023064455-03f45bd4b7da // indirect
 	github.com/nats-io/nats-server v1.4.1 // indirect

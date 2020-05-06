@@ -47,6 +47,47 @@ func (b *batchSolutionFetcher) BatchFetchSolution(ctx context.Context, solutionI
 	return solutions, nil
 }
 
+// BatchCheckFetcher represents an interface for concurrently fetching checks
+type BatchCheckFetcher interface {
+	BatchFetchCheck(ctx context.Context, checkIDs []string) ([]bool, error)
+}
+
+type batchCheckFetcher struct {
+	CheckFetcher CheckFetcher
+}
+
+func (b *batchCheckFetcher) BatchFetchCheck(ctx context.Context, checkIDs []string) ([]bool, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	checksChan := make(chan bool, len(checkIDs))
+	errorChan := make(chan error, len(checkIDs))
+
+	for _, checkID := range checkIDs {
+		go func(id string) {
+			check, err := b.CheckFetcher.FetchCheck(ctx, id)
+			if err != nil {
+				errorChan <- err
+				return
+			}
+			checksChan <- check
+		}(checkID)
+	}
+
+	checks := make([]bool, 0, len(checkIDs))
+	for range checkIDs {
+		select {
+		case check := <-checksChan:
+			checks = append(checks, check)
+		case err := <-errorChan:
+			cancel()
+			return nil, err
+		}
+	}
+
+	return checks, nil
+}
+
 // AssetVulnerabilityHydrator represents an interface for hydrating an asset vulnerability with
 // details and solutions
 type AssetVulnerabilityHydrator interface {
@@ -56,14 +97,16 @@ type AssetVulnerabilityHydrator interface {
 type assetVulnerabilityHydrator struct {
 	VulnerabilityDetailsFetcher   VulnerabilityDetailsFetcher
 	VulnerabilitySolutionsFetcher VulnerabilitySolutionsFetcher
+	VulnerabilityChecksFetcher    VulnerabilityChecksFetcher
 	BatchSolutionFetcher          BatchSolutionFetcher
+	BatchCheckFetcher             BatchCheckFetcher
 }
 
 func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Context, assetVulnerability NexposeAssetVulnerability) (domain.VulnerabilityDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	errorChan := make(chan error, 2)
+	errorChan := make(chan error, 3)
 
 	vulnerabilityDetailsChan := make(chan NexposeVulnerability, 1)
 	go func() {
@@ -90,16 +133,33 @@ func (a *assetVulnerabilityHydrator) HydrateAssetVulnerability(ctx context.Conte
 		solutionsChan <- solutions
 	}()
 
+	checksChan := make(chan []bool, 1)
+	go func() {
+		checkIDs, err := a.VulnerabilityChecksFetcher.FetchVulnerabilityChecks(ctx, assetVulnerability.ID)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		checks, err := a.BatchCheckFetcher.BatchFetchCheck(ctx, checkIDs)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		checksChan <- checks
+	}()
+
 	vulnerabilityDetails := domain.VulnerabilityDetails{
 		ID:      assetVulnerability.ID,
 		Results: assetVulnerability.Results,
 		Status:  assetVulnerability.Status,
 	}
 
-	for i := 0; i < 2; i = i + 1 {
+	for i := 0; i < 3; i = i + 1 {
 		select {
 		case solutions := <-solutionsChan:
 			vulnerabilityDetails.Solutions = solutions
+		case checks := <-checksChan:
+			vulnerabilityDetails.LocalCheck = anyTrue(checks)
 		case nexposeVulnDetails := <-vulnerabilityDetailsChan:
 			vulnerabilityDetails.CvssV2Score = nexposeVulnDetails.CvssV2Score
 			vulnerabilityDetails.CvssV2Severity = nexposeVulnDetails.CvssV2Severity
@@ -153,4 +213,13 @@ func (b *batchAssetVulnerabilityHydrator) BatchHydrateAssetVulnerabilities(ctx c
 	}
 
 	return vulnerabilityDetails, nil
+}
+
+func anyTrue(checks []bool) bool {
+	for _, check := range checks {
+		if check == true {
+			return true
+		}
+	}
+	return false
 }

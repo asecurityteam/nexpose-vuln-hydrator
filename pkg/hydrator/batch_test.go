@@ -16,8 +16,9 @@ func TestBatchSolutionFetcher(t *testing.T) {
 	mockSolutionFetcher.EXPECT().FetchSolution(gomock.Any(), "solution1").Return("solution-steps", nil)
 
 	batchSolutionFetch := batchSolutionFetcher{mockSolutionFetcher}
-	_, err := batchSolutionFetch.BatchFetchSolution(context.Background(), []string{"solution1"})
+	solutions, err := batchSolutionFetch.BatchFetchSolution(context.Background(), []string{"solution1"})
 	assert.Nil(t, err)
+	assert.ElementsMatch(t, []string{"solution-steps"}, solutions)
 }
 
 func TestBatchSolutionFetcherMultiple(t *testing.T) {
@@ -43,22 +44,68 @@ func TestBatchSolutionFetcherError(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Empty(t, solutions)
 }
-func TestHydrateAssetVulnerabilityDetailsFetchError(t *testing.T) {
+
+func TestBatchCheckFetcher(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockCheckFetcher := NewMockCheckFetcher(ctrl)
+	mockCheckFetcher.EXPECT().FetchCheck(gomock.Any(), "check1").Return(true, nil)
+
+	batchCheckFetch := batchCheckFetcher{mockCheckFetcher}
+	checks, err := batchCheckFetch.BatchFetchCheck(context.Background(), []string{"check1"})
+	assert.Nil(t, err)
+	assert.ElementsMatch(t, []bool{true}, checks)
+}
+
+func TestBatchCheckFetcherMultiple(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockCheckFetcher := NewMockCheckFetcher(ctrl)
+	mockCheckFetcher.EXPECT().FetchCheck(gomock.Any(), "check1").Return(true, nil)
+	mockCheckFetcher.EXPECT().FetchCheck(gomock.Any(), "check2").Return(false, nil)
+
+	batchCheckFetch := batchCheckFetcher{mockCheckFetcher}
+	checks, err := batchCheckFetch.BatchFetchCheck(context.Background(), []string{"check1", "check2"})
+	assert.Nil(t, err)
+	assert.ElementsMatch(t, []bool{true, false}, checks)
+}
+
+func TestBatchCheckFetcherError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockCheckFetcher := NewMockCheckFetcher(ctrl)
+	mockCheckFetcher.EXPECT().FetchCheck(gomock.Any(), "check1").Return(false, nil)
+	mockCheckFetcher.EXPECT().FetchCheck(gomock.Any(), "check2").Return(false, fmt.Errorf("couldn't get checks"))
+
+	batchCheckFetch := batchCheckFetcher{mockCheckFetcher}
+	checks, err := batchCheckFetch.BatchFetchCheck(context.Background(), []string{"check1", "check2"})
+	assert.NotNil(t, err)
+	assert.Empty(t, checks)
+}
+
+/*func TestHydrateAssetVulnerabilityDetailsFetchError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockVulnDetailsFetcher := NewMockVulnerabilityDetailsFetcher(ctrl)
 	mockVulnSolutionsFetcher := NewMockVulnerabilitySolutionsFetcher(ctrl)
 	mockBatchSolutionsFetcher := NewMockBatchSolutionFetcher(ctrl)
+	mockVulnChecksFetcher := NewMockVulnerabilityChecksFetcher(ctrl)
+	mockBatchChecksFetcher := NewMockBatchCheckFetcher(ctrl)
 
 	mockVulnDetailsFetcher.EXPECT().
 		FetchVulnerabilityDetails(gomock.Any(), "vulnID").
 		Return(NexposeVulnerability{}, fmt.Errorf("details fetch error"))
-	mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), "vulnID").Return([]string{"solution1", "solution2"}, nil)
-	mockBatchSolutionsFetcher.EXPECT().BatchFetchSolution(gomock.Any(), []string{"solution1", "solution2"}).Return([]string{"solution1-steps", "solution2-steps"}, nil)
+	mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), "vulnID").Return([]string{"solution1", "solution2"}, nil).
+		MinTimes(0).MaxTimes(1)
+	mockBatchSolutionsFetcher.EXPECT().BatchFetchSolution(gomock.Any(), []string{"solution1", "solution2"}).Return([]string{"solution1-steps", "solution2-steps"}, nil).
+		MinTimes(0).MaxTimes(1)
+	mockVulnChecksFetcher.EXPECT().FetchVulnerabilityChecks(gomock.Any(), "vulnID").Return([]string{"check1", "check2"}, nil).
+		MinTimes(0).MaxTimes(1)
+	mockBatchChecksFetcher.EXPECT().BatchFetchCheck(gomock.Any(), []string{"check1", "check2"}).Return([]bool{true, false}, nil).
+		MinTimes(0).MaxTimes(1)
 
 	assetVulnHydrator := assetVulnerabilityHydrator{
 		VulnerabilityDetailsFetcher:   mockVulnDetailsFetcher,
 		VulnerabilitySolutionsFetcher: mockVulnSolutionsFetcher,
+		VulnerabilityChecksFetcher:    mockVulnChecksFetcher,
 		BatchSolutionFetcher:          mockBatchSolutionsFetcher,
+		BatchCheckFetcher:             mockBatchChecksFetcher,
 	}
 
 	_, err := assetVulnHydrator.HydrateAssetVulnerability(
@@ -70,6 +117,7 @@ func TestHydrateAssetVulnerabilityDetailsFetchError(t *testing.T) {
 		},
 	)
 	assert.NotNil(t, err)
+	// TODO: Check response here.
 }
 
 func TestHydrateAssetVulnerabilityVulnSolutionsFetchError(t *testing.T) {
@@ -77,16 +125,27 @@ func TestHydrateAssetVulnerabilityVulnSolutionsFetchError(t *testing.T) {
 	mockVulnDetailsFetcher := NewMockVulnerabilityDetailsFetcher(ctrl)
 	mockVulnSolutionsFetcher := NewMockVulnerabilitySolutionsFetcher(ctrl)
 	mockBatchSolutionsFetcher := NewMockBatchSolutionFetcher(ctrl)
+	mockVulnChecksFetcher := NewMockVulnerabilityChecksFetcher(ctrl)
+	mockBatchChecksFetcher := NewMockBatchCheckFetcher(ctrl)
 
 	mockVulnDetailsFetcher.EXPECT().
 		FetchVulnerabilityDetails(gomock.Any(), "vulnID").
-		Return(NexposeVulnerability{}, nil)
+		Return(NexposeVulnerability{}, nil).
+		MinTimes(0).MaxTimes(1)
 	mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), "vulnID").Return([]string{}, fmt.Errorf("vuln solutions fetch error"))
+	mockBatchSolutionsFetcher.EXPECT().BatchFetchSolution(gomock.Any(), []string{"solution1", "solution2"}).Return([]string{"solution1-steps", "solution2-steps"}, nil).
+		MinTimes(0).MaxTimes(1)
+	mockVulnChecksFetcher.EXPECT().FetchVulnerabilityChecks(gomock.Any(), "vulnID").Return([]string{"check1", "check2"}, nil).
+		MinTimes(0).MaxTimes(1)
+	mockBatchChecksFetcher.EXPECT().BatchFetchCheck(gomock.Any(), []string{"check1", "check2"}).Return([]bool{true, false}, nil).
+		MinTimes(0).MaxTimes(1)
 
 	assetVulnHydrator := assetVulnerabilityHydrator{
 		VulnerabilityDetailsFetcher:   mockVulnDetailsFetcher,
 		VulnerabilitySolutionsFetcher: mockVulnSolutionsFetcher,
+		VulnerabilityChecksFetcher:    mockVulnChecksFetcher,
 		BatchSolutionFetcher:          mockBatchSolutionsFetcher,
+		BatchCheckFetcher:             mockBatchChecksFetcher,
 	}
 
 	_, err := assetVulnHydrator.HydrateAssetVulnerability(
@@ -105,17 +164,26 @@ func TestHydrateAssetVulnerabilityBatchSolutionsFetchError(t *testing.T) {
 	mockVulnDetailsFetcher := NewMockVulnerabilityDetailsFetcher(ctrl)
 	mockVulnSolutionsFetcher := NewMockVulnerabilitySolutionsFetcher(ctrl)
 	mockBatchSolutionsFetcher := NewMockBatchSolutionFetcher(ctrl)
+	mockVulnChecksFetcher := NewMockVulnerabilityChecksFetcher(ctrl)
+	mockBatchChecksFetcher := NewMockBatchCheckFetcher(ctrl)
 
 	mockVulnDetailsFetcher.EXPECT().
 		FetchVulnerabilityDetails(gomock.Any(), "vulnID").
-		Return(NexposeVulnerability{}, fmt.Errorf("details fetch error"))
+		Return(NexposeVulnerability{}, fmt.Errorf("details fetch error")).
+		MinTimes(0).MaxTimes(1)
 	mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), "vulnID").Return([]string{"solution1", "solution2"}, nil)
 	mockBatchSolutionsFetcher.EXPECT().BatchFetchSolution(gomock.Any(), []string{"solution1", "solution2"}).Return([]string{}, fmt.Errorf("batch solution fetch error"))
+	mockVulnChecksFetcher.EXPECT().FetchVulnerabilityChecks(gomock.Any(), "vulnID").Return([]string{"check1", "check2"}, nil).
+		MinTimes(0).MaxTimes(1)
+	mockBatchChecksFetcher.EXPECT().BatchFetchCheck(gomock.Any(), []string{"check1", "check2"}).Return([]bool{true, false}, nil).
+		MinTimes(0).MaxTimes(1)
 
 	assetVulnHydrator := assetVulnerabilityHydrator{
 		VulnerabilityDetailsFetcher:   mockVulnDetailsFetcher,
 		VulnerabilitySolutionsFetcher: mockVulnSolutionsFetcher,
+		VulnerabilityChecksFetcher:    mockVulnChecksFetcher,
 		BatchSolutionFetcher:          mockBatchSolutionsFetcher,
+		BatchCheckFetcher:             mockBatchChecksFetcher,
 	}
 
 	_, err := assetVulnHydrator.HydrateAssetVulnerability(
@@ -127,7 +195,7 @@ func TestHydrateAssetVulnerabilityBatchSolutionsFetchError(t *testing.T) {
 		},
 	)
 	assert.NotNil(t, err)
-}
+}*/
 
 func TestHydrateAssetVulnerability(t *testing.T) {
 	vulnID := "vulnID"
@@ -139,6 +207,10 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 		vulnSolutionsErr    error
 		batchSolutionResult []string
 		batchSolutionErr    error
+		checksResult        []string
+		vulnChecksErr       error
+		batchCheckResult    []bool
+		batchCheckErr       error
 		expectedVulnDetails domain.VulnerabilityDetails
 		expectedErr         bool
 	}{
@@ -156,6 +228,10 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 			nil,
 			[]string{"solution1-steps", "solution2-steps"},
 			nil,
+			[]string{"check1", "check2"},
+			nil,
+			[]bool{false, true},
+			nil,
 			domain.VulnerabilityDetails{
 				ID: "vulnID",
 				Results: []domain.AssessmentResult{
@@ -167,6 +243,7 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 				Title:          "Vulnerability",
 				Solutions:      []string{"solution1-steps", "solution2-steps"},
 				Status:         "invulnerable",
+				LocalCheck:     true,
 			},
 			false,
 		},
@@ -177,6 +254,10 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 			[]string{"solution1", "solution2"},
 			nil,
 			[]string{"solution1-steps", "solution2-steps"},
+			nil,
+			[]string{"check1", "check2"},
+			nil,
+			[]bool{false, true},
 			nil,
 			domain.VulnerabilityDetails{},
 			true,
@@ -189,6 +270,10 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 			fmt.Errorf("vuln solutions fetch error"),
 			[]string{"solution1-steps", "solution2-steps"},
 			nil,
+			[]string{"check1", "check2"},
+			nil,
+			[]bool{false, true},
+			nil,
 			domain.VulnerabilityDetails{},
 			true,
 		},
@@ -200,6 +285,40 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 			nil,
 			nil,
 			fmt.Errorf("solutions fetch error"),
+			[]string{"check1", "check2"},
+			nil,
+			[]bool{false, true},
+			nil,
+			domain.VulnerabilityDetails{},
+			true,
+		},
+		{
+			"vuln checks fetch error",
+			NexposeVulnerability{},
+			nil,
+			[]string{"solution1", "solution2"},
+			nil,
+			[]string{"solution1-steps", "solution2-steps"},
+			nil,
+			nil,
+			fmt.Errorf("vuln checks fetch error"),
+			[]bool{false, true},
+			nil,
+			domain.VulnerabilityDetails{},
+			true,
+		},
+		{
+			"checks fetch error",
+			NexposeVulnerability{},
+			nil,
+			[]string{"solution1", "solution2"},
+			nil,
+			[]string{"solution1-steps", "solution2-steps"},
+			nil,
+			[]string{"check1", "check2"},
+			nil,
+			nil,
+			fmt.Errorf("checks fetch error"),
 			domain.VulnerabilityDetails{},
 			true,
 		},
@@ -210,6 +329,10 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 			nil,
 			fmt.Errorf("vuln solutions fetch error"),
 			[]string{"solution1-steps", "solution2-steps"},
+			nil,
+			[]string{"check1", "check2"},
+			nil,
+			[]bool{false, true},
 			nil,
 			domain.VulnerabilityDetails{},
 			true,
@@ -222,6 +345,70 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 			nil,
 			[]string{"solution1-steps", "solution2-steps"},
 			fmt.Errorf("solutions fetch error"),
+			[]string{"check1", "check2"},
+			nil,
+			[]bool{false, true},
+			nil,
+			domain.VulnerabilityDetails{},
+			true,
+		},
+		{
+			"details and vuln checks fetch error",
+			NexposeVulnerability{},
+			fmt.Errorf("details fetch error"),
+			[]string{"solution1", "solution2"},
+			nil,
+			[]string{"solution1-steps", "solution2-steps"},
+			nil,
+			nil,
+			fmt.Errorf("vuln checks fetch error"),
+			[]bool{false, true},
+			nil,
+			domain.VulnerabilityDetails{},
+			true,
+		},
+		{
+			"details and checks fetch error",
+			NexposeVulnerability{},
+			fmt.Errorf("details fetch error"),
+			[]string{"solution1", "solution2"},
+			nil,
+			[]string{"solution1-steps", "solution2-steps"},
+			nil,
+			[]string{"check1", "check2"},
+			nil,
+			nil,
+			fmt.Errorf("checks fetch error"),
+			domain.VulnerabilityDetails{},
+			true,
+		},
+		{
+			"details, vuln checks, and vuln solutions fetch error",
+			NexposeVulnerability{},
+			fmt.Errorf("details fetch error"),
+			nil,
+			fmt.Errorf("vuln solutions fetch error"),
+			[]string{"solution1-steps", "solution2-steps"},
+			nil,
+			nil,
+			fmt.Errorf("vuln checks fetch error"),
+			[]bool{false, true},
+			nil,
+			domain.VulnerabilityDetails{},
+			true,
+		},
+		{
+			"details, checks, and solutions fetch error",
+			NexposeVulnerability{},
+			fmt.Errorf("details fetch error"),
+			[]string{"solution1", "solution2"},
+			nil,
+			nil,
+			fmt.Errorf("solutions fetch error"),
+			[]string{"check1", "check2"},
+			nil,
+			nil,
+			fmt.Errorf("checks fetch error"),
 			domain.VulnerabilityDetails{},
 			true,
 		},
@@ -233,15 +420,26 @@ func TestHydrateAssetVulnerability(t *testing.T) {
 			mockVulnDetailsFetcher := NewMockVulnerabilityDetailsFetcher(ctrl)
 			mockVulnSolutionsFetcher := NewMockVulnerabilitySolutionsFetcher(ctrl)
 			mockBatchSolutionsFetcher := NewMockBatchSolutionFetcher(ctrl)
+			mockVulnChecksFetcher := NewMockVulnerabilityChecksFetcher(ctrl)
+			mockBatchChecksFetcher := NewMockBatchCheckFetcher(ctrl)
 
-			mockVulnDetailsFetcher.EXPECT().FetchVulnerabilityDetails(gomock.Any(), vulnID).Return(test.detailsResult, test.detailsErr)
-			mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), vulnID).Return(test.solutionsResult, test.vulnSolutionsErr)
-			mockBatchSolutionsFetcher.EXPECT().BatchFetchSolution(gomock.Any(), test.solutionsResult).Return(test.batchSolutionResult, test.batchSolutionErr)
+			mockVulnDetailsFetcher.EXPECT().FetchVulnerabilityDetails(gomock.Any(), vulnID).Return(test.detailsResult, test.detailsErr).
+				MinTimes(0).MaxTimes(1)
+			mockVulnSolutionsFetcher.EXPECT().FetchVulnerabilitySolutions(gomock.Any(), vulnID).Return(test.solutionsResult, test.vulnSolutionsErr).
+				MinTimes(0).MaxTimes(1)
+			mockBatchSolutionsFetcher.EXPECT().BatchFetchSolution(gomock.Any(), test.solutionsResult).Return(test.batchSolutionResult, test.batchSolutionErr).
+				MinTimes(0).MaxTimes(1)
+			mockVulnChecksFetcher.EXPECT().FetchVulnerabilityChecks(gomock.Any(), vulnID).Return(test.checksResult, test.vulnChecksErr).
+				MinTimes(0).MaxTimes(1)
+			mockBatchChecksFetcher.EXPECT().BatchFetchCheck(gomock.Any(), test.checksResult).Return(test.batchCheckResult, test.batchCheckErr).
+				MinTimes(0).MaxTimes(1)
 
 			assetVulnHydrator := assetVulnerabilityHydrator{
 				VulnerabilityDetailsFetcher:   mockVulnDetailsFetcher,
 				VulnerabilitySolutionsFetcher: mockVulnSolutionsFetcher,
+				VulnerabilityChecksFetcher:    mockVulnChecksFetcher,
 				BatchSolutionFetcher:          mockBatchSolutionsFetcher,
+				BatchCheckFetcher:             mockBatchChecksFetcher,
 			}
 
 			hydratedVuln, err := assetVulnHydrator.HydrateAssetVulnerability(
@@ -321,4 +519,44 @@ func TestBatchAssetVulnerabilityHydratorError(t *testing.T) {
 
 	assert.NotNil(t, err)
 	assert.Nil(t, vulnDetails)
+}
+
+func TestAnyTrue(t *testing.T) {
+	tests := []struct {
+		name           string
+		input          []bool
+		expectedOutput bool
+	}{
+		{
+			"empty slice",
+			[]bool{},
+			false,
+		},
+		{
+			"single true",
+			[]bool{true},
+			true,
+		},
+		{
+			"single false",
+			[]bool{},
+			false,
+		},
+		{
+			"multiple contains true",
+			[]bool{false, false, true},
+			true,
+		},
+		{
+			"multiple does not contain true",
+			[]bool{false, false, false},
+			false,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			output := anyTrue(test.input)
+			assert.Equal(tt, test.expectedOutput, output)
+		})
+	}
 }

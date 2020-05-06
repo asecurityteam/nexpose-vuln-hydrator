@@ -6,9 +6,8 @@ package hydrator
 
 import (
 	context "context"
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockVulnerabilitySolutionsFetcher is a mock of VulnerabilitySolutionsFetcher interface
@@ -36,6 +35,7 @@ func (m *MockVulnerabilitySolutionsFetcher) EXPECT() *MockVulnerabilitySolutions
 
 // FetchVulnerabilitySolutions mocks base method
 func (m *MockVulnerabilitySolutionsFetcher) FetchVulnerabilitySolutions(ctx context.Context, vulnID string) ([]string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchVulnerabilitySolutions", ctx, vulnID)
 	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
@@ -44,6 +44,7 @@ func (m *MockVulnerabilitySolutionsFetcher) FetchVulnerabilitySolutions(ctx cont
 
 // FetchVulnerabilitySolutions indicates an expected call of FetchVulnerabilitySolutions
 func (mr *MockVulnerabilitySolutionsFetcherMockRecorder) FetchVulnerabilitySolutions(ctx, vulnID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchVulnerabilitySolutions", reflect.TypeOf((*MockVulnerabilitySolutionsFetcher)(nil).FetchVulnerabilitySolutions), ctx, vulnID)
 }
 
@@ -72,6 +73,7 @@ func (m *MockSolutionFetcher) EXPECT() *MockSolutionFetcherMockRecorder {
 
 // FetchSolution mocks base method
 func (m *MockSolutionFetcher) FetchSolution(ctx context.Context, solutionID string) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchSolution", ctx, solutionID)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -80,7 +82,84 @@ func (m *MockSolutionFetcher) FetchSolution(ctx context.Context, solutionID stri
 
 // FetchSolution indicates an expected call of FetchSolution
 func (mr *MockSolutionFetcherMockRecorder) FetchSolution(ctx, solutionID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchSolution", reflect.TypeOf((*MockSolutionFetcher)(nil).FetchSolution), ctx, solutionID)
+}
+
+// MockVulnerabilityChecksFetcher is a mock of VulnerabilityChecksFetcher interface
+type MockVulnerabilityChecksFetcher struct {
+	ctrl     *gomock.Controller
+	recorder *MockVulnerabilityChecksFetcherMockRecorder
+}
+
+// MockVulnerabilityChecksFetcherMockRecorder is the mock recorder for MockVulnerabilityChecksFetcher
+type MockVulnerabilityChecksFetcherMockRecorder struct {
+	mock *MockVulnerabilityChecksFetcher
+}
+
+// NewMockVulnerabilityChecksFetcher creates a new mock instance
+func NewMockVulnerabilityChecksFetcher(ctrl *gomock.Controller) *MockVulnerabilityChecksFetcher {
+	mock := &MockVulnerabilityChecksFetcher{ctrl: ctrl}
+	mock.recorder = &MockVulnerabilityChecksFetcherMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockVulnerabilityChecksFetcher) EXPECT() *MockVulnerabilityChecksFetcherMockRecorder {
+	return m.recorder
+}
+
+// FetchVulnerabilityChecks mocks base method
+func (m *MockVulnerabilityChecksFetcher) FetchVulnerabilityChecks(ctx context.Context, vulnID string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchVulnerabilityChecks", ctx, vulnID)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchVulnerabilityChecks indicates an expected call of FetchVulnerabilityChecks
+func (mr *MockVulnerabilityChecksFetcherMockRecorder) FetchVulnerabilityChecks(ctx, vulnID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchVulnerabilityChecks", reflect.TypeOf((*MockVulnerabilityChecksFetcher)(nil).FetchVulnerabilityChecks), ctx, vulnID)
+}
+
+// MockCheckFetcher is a mock of CheckFetcher interface
+type MockCheckFetcher struct {
+	ctrl     *gomock.Controller
+	recorder *MockCheckFetcherMockRecorder
+}
+
+// MockCheckFetcherMockRecorder is the mock recorder for MockCheckFetcher
+type MockCheckFetcherMockRecorder struct {
+	mock *MockCheckFetcher
+}
+
+// NewMockCheckFetcher creates a new mock instance
+func NewMockCheckFetcher(ctrl *gomock.Controller) *MockCheckFetcher {
+	mock := &MockCheckFetcher{ctrl: ctrl}
+	mock.recorder = &MockCheckFetcherMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockCheckFetcher) EXPECT() *MockCheckFetcherMockRecorder {
+	return m.recorder
+}
+
+// FetchCheck mocks base method
+func (m *MockCheckFetcher) FetchCheck(ctx context.Context, checkID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchCheck", ctx, checkID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchCheck indicates an expected call of FetchCheck
+func (mr *MockCheckFetcherMockRecorder) FetchCheck(ctx, checkID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchCheck", reflect.TypeOf((*MockCheckFetcher)(nil).FetchCheck), ctx, checkID)
 }
 
 // MockAssetVulnerabilitiesFetcher is a mock of AssetVulnerabilitiesFetcher interface
@@ -108,6 +187,7 @@ func (m *MockAssetVulnerabilitiesFetcher) EXPECT() *MockAssetVulnerabilitiesFetc
 
 // FetchAssetVulnerabilities mocks base method
 func (m *MockAssetVulnerabilitiesFetcher) FetchAssetVulnerabilities(ctx context.Context, assetID int64) ([]NexposeAssetVulnerability, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchAssetVulnerabilities", ctx, assetID)
 	ret0, _ := ret[0].([]NexposeAssetVulnerability)
 	ret1, _ := ret[1].(error)
@@ -116,6 +196,7 @@ func (m *MockAssetVulnerabilitiesFetcher) FetchAssetVulnerabilities(ctx context.
 
 // FetchAssetVulnerabilities indicates an expected call of FetchAssetVulnerabilities
 func (mr *MockAssetVulnerabilitiesFetcherMockRecorder) FetchAssetVulnerabilities(ctx, assetID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchAssetVulnerabilities", reflect.TypeOf((*MockAssetVulnerabilitiesFetcher)(nil).FetchAssetVulnerabilities), ctx, assetID)
 }
 
@@ -144,6 +225,7 @@ func (m *MockVulnerabilityDetailsFetcher) EXPECT() *MockVulnerabilityDetailsFetc
 
 // FetchVulnerabilityDetails mocks base method
 func (m *MockVulnerabilityDetailsFetcher) FetchVulnerabilityDetails(ctx context.Context, vulnID string) (NexposeVulnerability, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchVulnerabilityDetails", ctx, vulnID)
 	ret0, _ := ret[0].(NexposeVulnerability)
 	ret1, _ := ret[1].(error)
@@ -152,5 +234,6 @@ func (m *MockVulnerabilityDetailsFetcher) FetchVulnerabilityDetails(ctx context.
 
 // FetchVulnerabilityDetails indicates an expected call of FetchVulnerabilityDetails
 func (mr *MockVulnerabilityDetailsFetcherMockRecorder) FetchVulnerabilityDetails(ctx, vulnID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchVulnerabilityDetails", reflect.TypeOf((*MockVulnerabilityDetailsFetcher)(nil).FetchVulnerabilityDetails), ctx, vulnID)
 }

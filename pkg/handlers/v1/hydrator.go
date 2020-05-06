@@ -40,6 +40,7 @@ type AssetVulnerabilityDetails struct {
 	Title          string             `json:"title"`
 	Solutions      []string           `json:"solutions"`
 	Status         string             `json:"status"`
+	LocalCheck     bool               `json:"localCheck"`
 }
 
 // AssessmentResult contains information about how the vulnerability was discovered
@@ -79,6 +80,7 @@ func domainAssetVulnerabilityDetailsToEvent(a domain.AssetVulnerabilityDetails) 
 			Title:          vuln.Title,
 			Solutions:      vuln.Solutions,
 			Status:         vuln.Status,
+			LocalCheck:     vuln.LocalCheck,
 		}
 	}
 	return AssetVulnerabilitiesEvent{

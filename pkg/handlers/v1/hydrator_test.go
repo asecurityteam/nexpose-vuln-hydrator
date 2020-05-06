@@ -79,6 +79,7 @@ func TestDomainAssetVulnerabilityDetailsToEvent(t *testing.T) {
 					domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "This is what happened"},
 					domain.AssessmentResult{Port: 80, Protocol: "tcp", Proof: "Some proof"},
 				},
+				LocalCheck: false,
 			},
 			domain.VulnerabilityDetails{
 				ID:             "additional vuln",
@@ -90,6 +91,7 @@ func TestDomainAssetVulnerabilityDetailsToEvent(t *testing.T) {
 				Results: []domain.AssessmentResult{
 					domain.AssessmentResult{Port: 443, Protocol: "tcp", Proof: "Some proof"},
 				},
+				LocalCheck: true,
 			},
 		},
 	}
@@ -108,4 +110,5 @@ func TestDomainAssetVulnerabilityDetailsToEvent(t *testing.T) {
 	assert.Equal(t, firstDomainVuln.Description, firstEventVuln.Description)
 	assert.Equal(t, firstDomainVuln.Title, firstEventVuln.Title)
 	assert.Equal(t, firstDomainVuln.Solutions, firstEventVuln.Solutions)
+	assert.Equal(t, firstDomainVuln.LocalCheck, firstEventVuln.LocalCheck)
 }

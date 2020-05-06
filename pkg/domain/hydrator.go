@@ -26,8 +26,8 @@ type VulnerabilityDetails struct {
 	CvssV2Severity string
 	Description    string
 	Title          string
-	LocalCheck     bool
 	Solutions      []string
+	LocalCheck     bool
 }
 
 // Hydrator represents an interface for hydrating an Asset with vulnerability details

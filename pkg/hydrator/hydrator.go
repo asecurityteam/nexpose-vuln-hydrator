@@ -51,6 +51,10 @@ func (c *HydratorComponent) New(ctx context.Context, config *HydratorConfig) (*H
 				BatchSolutionFetcher: &batchSolutionFetcher{
 					SolutionFetcher: nexposeClient,
 				},
+				VulnerabilityChecksFetcher: nexposeClient,
+				BatchCheckFetcher: &batchCheckFetcher{
+					CheckFetcher: nexposeClient,
+				},
 			},
 		},
 		DependencyChecker: nexposeClient,

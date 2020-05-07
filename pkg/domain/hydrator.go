@@ -27,6 +27,7 @@ type VulnerabilityDetails struct {
 	Description    string
 	Title          string
 	Solutions      []string
+	LocalCheck     bool
 }
 
 // Hydrator represents an interface for hydrating an Asset with vulnerability details

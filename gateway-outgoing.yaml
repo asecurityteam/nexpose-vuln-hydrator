@@ -120,6 +120,78 @@ paths:
         basicauth:
           username: "${NEXPOSE_USERNAME}"
           password: "${NEXPOSE_PASSWORD}"
+  /api/3/vulnerability_checks/{id}:
+    get:
+      description: Returns the details for a check that can detect one or more vulnerabilities.
+      parameters:
+        - name: id
+          in: path
+          description: The identifier of the check.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Check"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NexposeError"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NexposeError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NexposeError"
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NexposeError"
+      x-transportd:
+        backend: nexpose
+        enabled:
+          - "accesslog"
+          - "metrics"
+          - "requestvalidation"
+          - "responsevalidation"
+          - "timeout"
+          - "retry"
+          - "basicauth"
+        timeout:
+          after: "${NEXPOSE_API_TIMEOUT}"
+        retry:
+          backoff: "50ms"
+          limit: 3
+          codes:
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 506
+            - 507
+            - 508
+            - 509
+            - 510
+            - 511
+        basicauth:
+          username: "${NEXPOSE_USERNAME}"
+          password: "${NEXPOSE_PASSWORD}"
   /api/3/vulnerabilities/{id}:
     get:
       summary: Vulnerability
@@ -251,6 +323,82 @@ paths:
           after: "${NEXPOSE_API_TIMEOUT}"
         retry:
           backoff: "50ms"
+          limit: 3
+          codes:
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 506
+            - 507
+            - 508
+            - 509
+            - 510
+            - 511
+        basicauth:
+          username: "${NEXPOSE_USERNAME}"
+          password: "${NEXPOSE_PASSWORD}"
+  /api/3/vulnerabilities/{id}/checks:
+    get:
+      tags:
+        - Vulnerability
+      summary: Vulnerability Checks
+      description:
+        Returns all checks that were  used to detect this vulnerability.
+      parameters:
+        - name: id
+          in: path
+          description: The identifier of the vulnerability.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VulnCheck"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NexposeError"
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NexposeError"
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NexposeError"
+        503:
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NexposeError"
+      x-transportd:
+        backend: nexpose
+        enabled:
+          - "accesslog"
+          - "metrics"
+          - "requestvalidation"
+          - "responsevalidation"
+          - "timeout"
+          - "retry"
+          - "basicauth"
+        timeout:
+          after: "${NEXPOSE_API_TIMEOUT}"
+        retry:
+          backoff: "10s"
           limit: 3
           codes:
             - 500
@@ -434,6 +582,37 @@ components:
           type: string
           description: Textual representation of the content.
           example: Use `apt-get upgrade` to upgrade libexpat1 to the latest version.
+    Check:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The identifier of the check.
+        plugin:
+          type: string
+          description: The scan engine plugin used to run the check.
+        potential:
+          type: boolean
+          description: Whether the check results in potential vulnerabilities.
+        safe:
+          type: boolean
+          description:
+            Whether the check is deemed to be "safe" to run, because it should not
+            negatively affect the host it is run against.
+        service:
+          type: boolean
+          description:
+            Whether the check operates against a service like HTTP,
+            SMTP, etc., or false if it is a local check.
+        unique:
+          type: boolean
+          description:
+            Whether the check may only register a result once during
+            a scan of a host. Otherwise, the tests in the check can run
+            multiple times, possibly registering multiple results.
+        vulnerability:
+          type: string
+          description: The identifier of the vulnerability the check results in.
     Vulnerability:
       type: object
       properties:
@@ -470,7 +649,6 @@ components:
             <p>A remote code execution vulnerability exists in the way that the
             scripting engine handles objects in memory in Microsoft Edge. ...</p>
           description: Textual representation of the content.
-      description: ""
     VulnSolution:
       type: object
       properties:
@@ -479,7 +657,16 @@ components:
           description: The identifiers of the associated resources.
           items:
             type: string
-      description: ""
+      description: The solutions across all platforms that can be used to remediate this vulnerability.
+    VulnCheck:
+      type: object
+      properties:
+        resources:
+          type: array
+          description: The identifiers of the associated resources.
+          items:
+            type: string
+      description: The checks used to detect this vulnerability on the host.
     AssetVulnerability:
       type: object
       properties:

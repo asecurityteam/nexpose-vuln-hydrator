@@ -293,32 +293,18 @@ func (n *NexposeClient) FetchAssetVulnerabilities(ctx context.Context, assetID i
 
 	pages := int(assetVulns.Page.TotalPages)
 	totalResources := int(assetVulns.Page.TotalResources)
-	assetVulnsChannel := make(chan NexposeAssetVulnerability, totalResources)
-	errorChan := make(chan error, pages)
+	nexposeAssetVulns := make([]NexposeAssetVulnerability, 0, totalResources)
 	for _, resource := range assetVulns.Resources {
-		assetVulnsChannel <- assetVulnToNexposeAssetVuln(resource)
+		nexposeAssetVulns = append(nexposeAssetVulns, assetVulnToNexposeAssetVuln(resource))
 	}
 
 	for curPage := 1; curPage < pages; curPage = curPage + 1 {
-		go func(curPage int) {
-			nexposeAssetVulns, err := n.makePagedAssetVulnerabilitiesRequest(assetID, curPage)
-			if err != nil {
-				errorChan <- err
-				return
-			}
-			for _, vuln := range nexposeAssetVulns {
-				assetVulnsChannel <- vuln
-			}
-		}(curPage)
-	}
-
-	nexposeAssetVulns := make([]NexposeAssetVulnerability, 0, totalResources)
-	for i := 0; i < totalResources; i = i + 1 {
-		select {
-		case assetVuln := <-assetVulnsChannel:
-			nexposeAssetVulns = append(nexposeAssetVulns, assetVuln)
-		case err := <-errorChan:
+		nexposeAssetPageVulns, err := n.makePagedAssetVulnerabilitiesRequest(assetID, curPage)
+		if err != nil {
 			return nil, err
+		}
+		for _, assetVuln := range nexposeAssetPageVulns {
+			nexposeAssetVulns = append(nexposeAssetVulns, assetVuln)
 		}
 	}
 	return nexposeAssetVulns, nil

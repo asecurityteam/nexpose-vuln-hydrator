@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	httpclient "github.com/asecurityteam/component-httpclient"
+	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/semaphore"
 )
 
 // NexposeConfig holds configuration to connect to Nexpose
@@ -14,6 +15,7 @@ type NexposeConfig struct {
 	HTTPClient *httpclient.Config `description:"The HTTP client config from github.com/asecurityteam/component-httpclient."`
 	Host       string             `description:"The scheme and host of a Nexpose instance."`
 	PageSize   int                `description:"The number of assets that should be returned from the Nexpose API at one time."`
+	LockLimit  int                `description:"The number of concurrent calls allowed to Nexpose."`
 }
 
 // Name is used by the settings library and will add a "NEXPOSE_"
@@ -58,5 +60,6 @@ func (c *NexposeComponent) New(ctx context.Context, config *NexposeConfig) (*Nex
 		HTTPClient: &http.Client{Transport: rt},
 		Host:       host,
 		PageSize:   config.PageSize,
+		Lock:       semaphore.NewSemaphore(config.LockLimit),
 	}, nil
 }

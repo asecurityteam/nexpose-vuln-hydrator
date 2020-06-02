@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+	"sync"
 
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
 )
@@ -195,6 +196,7 @@ type VulnerabilityDetailsFetcher interface {
 type NexposeClient struct {
 	HTTPClient *http.Client
 	Host       *url.URL
+	Lock       sync.Locker
 	PageSize   int
 }
 
@@ -346,6 +348,8 @@ func (n *NexposeClient) makePagedAssetVulnerabilitiesRequest(assetID int64, page
 }
 
 func (n *NexposeClient) makeNexposeRequest(queryParams map[string]string, pathFragments ...string) ([]byte, error) {
+	n.Lock.Lock()
+	defer n.Lock.Unlock()
 	u, _ := url.Parse(n.Host.String())
 	u.Path = path.Join(pathFragments...)
 	q := u.Query()

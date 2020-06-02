@@ -31,6 +31,7 @@ require (
 	golang.org/x/sys v0.0.0-20190730183949-1393eb018365 // indirect
 	google.golang.org/grpc v1.22.1 // indirect
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
+	gotest.tools v2.2.0+incompatible
 )
 
 replace (

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/domain"
+	"github.com/asecurityteam/nexpose-vuln-hydrator/pkg/semaphore"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -94,6 +95,7 @@ func TestFetchVulnerabilitySolutions(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 
 			solutions, err := client.FetchVulnerabilitySolutions(context.Background(), "vulnID")
@@ -151,6 +153,7 @@ func TestFetchSolution(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 
 			resolution, err := client.FetchSolution(context.Background(), "solutionID")
@@ -208,6 +211,7 @@ func TestFetchVulnerabilityChecks(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 
 			checks, err := client.FetchVulnerabilityChecks(context.Background(), "vulnID")
@@ -272,6 +276,7 @@ func TestFetchCheck(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 
 			isLocalCheck, err := client.FetchCheck(context.Background(), "checkID")
@@ -334,6 +339,7 @@ func TestFetchVulnerabilityDetails(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 
 			vulnDetails, err := client.FetchVulnerabilityDetails(context.Background(), "vulnID")
@@ -477,6 +483,7 @@ func TestFetchAssetVulnerabilities(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 
 			assetVulns, err := client.FetchAssetVulnerabilities(context.Background(), 111111)
@@ -551,6 +558,7 @@ func TestMakePagedAssetVulnerabilitiesRequest(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 
 			assetVulns, err := client.makePagedAssetVulnerabilitiesRequest(111111, 1)
@@ -654,6 +662,7 @@ func TestMakeNexposeRequest(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 
 			body, err := client.makeNexposeRequest(map[string]string{"key1": "value1"}, "this", "is", "my", "path")
@@ -725,6 +734,7 @@ func TestNexposeDependencyCheck(t *testing.T) {
 			client := NexposeClient{
 				HTTPClient: &http.Client{Transport: mockRT},
 				Host:       clientURL,
+				Lock:       semaphore.NewSemaphore(3),
 			}
 			err := client.CheckDependencies(context.Background())
 			assert.Equal(tt, test.expectedErr, err != nil)

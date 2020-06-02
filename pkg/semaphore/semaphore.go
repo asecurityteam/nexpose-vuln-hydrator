@@ -1,7 +1,7 @@
 package semaphore
 
 // https://developer.atlassian.com/platform/security/guides/go/patterns/#limiting-concurrent-work
-//
+
 // Semaphore implements the sync.Locker interface
 // to help with concurrency control.
 //
@@ -11,7 +11,7 @@ type Semaphore struct {
 	C chan interface{}
 }
 
-// NewSempahore constructs a lock that allows `size` concurrent holders
+// NewSemaphore constructs a lock that allows `size` concurrent holders
 // of the lock.
 func NewSemaphore(size int) *Semaphore {
 	return &Semaphore{C: make(chan interface{}, size)}

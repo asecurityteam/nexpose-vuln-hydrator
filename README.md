@@ -1,3 +1,6 @@
+# We no longer use Nexpose. 
+This repository is not maintained.
+
 <a id="markdown-Nexpose-Vulnerability-Hydrator" name="Nexpose Vulnerability Hydrator"></a>
 # Nexpose Vulnerability Hydrator
 [![GoDoc](https://godoc.org/github.com/asecurityteam/nexpose-vuln-hydrator?status.svg)](https://godoc.org/github.com/asecurityteam/nexpose-vuln-hydrator)
